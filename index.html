@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aura Entry Helper — RSI14 + LWMA45 + EMA9 (on RSI)</title>
+  <title>Aura Entry Helper — v2 (fix TV black screen)</title>
   <style>
     :root{ --bg:#0b1020;--card:#12162a;--muted:#9aa3b2;--text:#eef1f6;--accent:#7c5cff;--ok:#22c55e;--bad:#ef4444 }
     *{box-sizing:border-box}
@@ -27,7 +27,7 @@
     .btn.ok{background:#204d2d}
     .btn.danger{background:#5a1f25}
     .hint{font-size:12px;color:var(--muted)}
-    .tv-embed{height:560px;border-radius:12px;overflow:hidden}
+    .tv-embed{height:560px;border-radius:12px;overflow:hidden; background:#0e1430}
     .mini{display:flex;gap:8px;flex-wrap:wrap}
     .pill{padding:6px 10px;border-radius:999px;background:#141a36;border:1px solid #283058;font-size:12px}
     .pill.bad{border-color:#55333b;background:#2a1520;color:#ffb4b4}
@@ -40,6 +40,7 @@
     .green{color:var(--ok)}
     .red{color:var(--bad)}
     kbd{background:#101633;border:1px solid #2b3256;border-radius:6px;padding:2px 6px;font-size:12px}
+    .banner{margin-top:8px;padding:10px 12px;border-radius:10px;background:#2a2548;border:1px solid #473e86;font-size:12px}
   </style>
 </head>
 <body>
@@ -136,6 +137,7 @@
           </div>
         </div>
 
+        <div id="tvBanner" class="banner" style="display:none"></div>
         <div id="tvWidget" class="tv-embed"></div>
         <div id="err" class="error"></div>
         <div class="footer">
@@ -193,7 +195,7 @@
 
     function tvSymbolFor(market,sym){
       sym = (sym||'').toUpperCase();
-      if(market==='binance') return 'BINANCE:'+sym; // e.g. BINANCE:BTCUSDT
+      if(market==='binance') return 'BINANCE:'+sym;
       const map = {
         'XAUUSD':'FX_IDC:XAUUSD','XAGUSD':'FX_IDC:XAGUSD',
         'EURUSD':'FX:EURUSD','GBPUSD':'FX:GBPUSD','USDJPY':'FX:USDJPY','AUDUSD':'FX:AUDUSD','USDCAD':'FX:USDCAD','NZDUSD':'FX:NZDUSD','USDCHF':'FX:USDCHF'
@@ -201,51 +203,59 @@
       return map[sym]||('FX:'+sym);
     }
 
-    // Detect local file protocol and warn (TV may not render well on file://)
+    function setBanner(msg, show=true){ const b=$('tvBanner'); b.textContent=msg; b.style.display=show?'block':'none'; }
+
     function warnIfLocalFile(){
       if (location.protocol === 'file:'){
-        const msg = 'Bạn đang mở file bằng giao thức file:// . Để TradingView hoạt động ổn định, nên mở qua http(s) — ví dụ dùng Live Server (VS Code) hoặc một web server nhẹ.';
-        const el = document.getElementById('err');
-        if(el) el.textContent = msg;
-        console.warn(msg);
+        setBanner('Bạn đang mở file bằng file:// — hãy dùng http://localhost (VD: VS Code Live Server hoặc python -m http.server) để TradingView hiển thị.');
       }
     }
 
-    // FIX #1 — TradingView safe loader
+    // Robust TV loader with auto-retry
+    let tvRetry = 0;
+    const TV_MAX_RETRY = 3;
+    function spawnTV(symbol, intv){
+      const containerId='tvWidget';
+      try{
+        new TradingView.widget({
+          autosize:true, symbol, interval:intv, timezone:'Asia/Bangkok',
+          theme:'dark', style:'1', container_id:containerId,
+          withdateranges:true, hide_side_toolbar:false, allow_symbol_change:true,
+          studies:['RSI@tv-basicstudies','ATR@tv-basicstudies'],
+        });
+      }catch(e){
+        $('err').textContent = 'TradingView init error: '+e.message;
+      }
+      // check if iframe appears; if not, retry
+      setTimeout(()=>{
+        const iframe = document.querySelector('#'+containerId+' iframe');
+        if(!iframe){
+          if(tvRetry < TV_MAX_RETRY){
+            tvRetry++; console.warn('TV retry', tvRetry);
+            const el = $(containerId); el.innerHTML='';
+            spawnTV(symbol, intv);
+          }else{
+            $('err').textContent = 'Không tải được TradingView (kiểm tra mạng/CORS).';
+          }
+        }
+      }, 1200);
+    }
+
     function createTV(sym, intv){
-      const market = $("market").value;
-      const containerId = "tvWidget";
-      const el = $(containerId);
-      el.innerHTML = ""; // keep container
+      const market = $('market').value;
+      const el = $('tvWidget'); el.innerHTML='';
       const symbol = tvSymbolFor(market, sym || 'BTCUSDT');
-
-      const spawn = ()=>{
-        try{
-          new TradingView.widget({
-            autosize: true,
-            symbol,
-            interval: toTVInt(intv),
-            timezone: "Asia/Bangkok",
-            theme: "dark",
-            style: "1",
-            container_id: containerId,
-            withdateranges: true,
-            hide_side_toolbar: false,
-            allow_symbol_change: true,
-            studies: ["RSI@tv-basicstudies","ATR@tv-basicstudies"],
-          });
-        }catch(e){ $("err").textContent = 'TradingView load error: '+ e.message; }
-      };
-
-      if(window.TradingView && typeof TradingView.widget === 'function'){
-        if(typeof TradingView.onready === 'function') TradingView.onready(spawn); else spawn();
+      tvRetry = 0;
+      const start = ()=> spawnTV(symbol, toTVInt(intv));
+      if(window.TradingView && typeof TradingView.widget==='function'){
+        if(typeof TradingView.onready === 'function') TradingView.onready(start); else start();
       }else{
         const iv = setInterval(()=>{
-          if(window.TradingView && typeof TradingView.widget === 'function'){
-            clearInterval(iv); spawn();
+          if(window.TradingView && typeof TradingView.widget==='function'){
+            clearInterval(iv); start();
           }
-        }, 200);
-        setTimeout(()=>clearInterval(iv), 7000);
+        },200);
+        setTimeout(()=>clearInterval(iv), 8000);
       }
     }
 
@@ -269,21 +279,21 @@
     }
 
     function withCustomProxy(u){
-      const p = $("customProxy").value.trim();
+      const p = $('customProxy').value.trim();
       if(!p) return u;
       if(p.endsWith('/') && u.startsWith('http')) return p + u;
       if(!p.endsWith('/') && u.startsWith('http')) return p + '/' + u;
       return p + u;
     }
 
-    // ====== Binance exchangeInfo with fallbacks ======
+    // ====== Binance symbols ======
     let BINANCE_SYMBOLS_ALL = [];
     let BINANCE_SOURCE = 'api';
     const STOOQ_SYMBOLS = ['XAUUSD','XAGUSD','EURUSD','GBPUSD','USDJPY','AUDUSD','USDCAD','NZDUSD','USDCHF'];
 
     async function fetchBinanceSymbols(){
       BINANCE_SOURCE = 'api';
-      $("apiStatus").style.display = 'none';
+      $('apiStatus').style.display = 'none';
       const bases = [
         'https://api.binance.com/api/v3/exchangeInfo',
         'https://api1.binance.com/api/v3/exchangeInfo',
@@ -319,21 +329,21 @@
             updateCountBadge();
             return {ok:true, url:u, count:list.length};
           }
-        }catch(e){ /* try next */ }
+        }catch(e){}
       }
       // Fallback
       BINANCE_SOURCE = 'fallback';
       BINANCE_SYMBOLS_ALL = ['BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT','DOTUSDT','LINKUSDT'];
-      $("apiStatus").textContent = 'Đang dùng danh sách fallback (API bị chặn). Bạn có thể nhập "Custom proxy prefix" ví dụ: https://r.jina.ai/https://';
-      $("apiStatus").className = 'pill bad';
-      $("apiStatus").style.display = 'inline-block';
+      $('apiStatus').textContent = 'Đang dùng danh sách fallback (API bị chặn). Hãy nhập Custom proxy prefix (vd: https://r.jina.ai/https://)';
+      $('apiStatus').className = 'pill bad';
+      $('apiStatus').style.display = 'inline-block';
       updateCountBadge();
       return {ok:false};
     }
 
     // ====== Klines ======
     async function fetchKlines(symbol, interval, limit=500){
-      const market = $("market").value;
+      const market = $('market').value;
       if(market==='binance'){
         const bases = [
           `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
@@ -343,78 +353,53 @@
           `https://data-api.binance.vision/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
         ];
         const wrappers = (u)=>[
-          u,
-          'https://cors.isomorphic-git.org/'+u,
-          'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
-          'https://r.jina.ai/https://'+u.replace(/^https?:\/\//,''),
-          'https://r.jina.ai/http://'+u.replace(/^https?:\/\//,''),
+          u,'https://cors.isomorphic-git.org/'+u,'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+          'https://r.jina.ai/https://'+u.replace(/^https?:\/\//,''),'https://r.jina.ai/http://'+u.replace(/^https?:\/\//,''),
           withCustomProxy(u),
         ];
-        const attempts = [];
-        for(const b of bases){ attempts.push(...wrappers(b)); }
+        const attempts=[]; for(const b of bases){ attempts.push(...wrappers(b)); }
         for(const u of attempts){
           try{
             let raw;
             if(u.includes('r.jina.ai') || u.includes('allorigins') || u.includes('isomorphic-git') || u===withCustomProxy(u)){
-              const txt = await fetchTEXT(u);
-              try{ raw = JSON.parse(txt); }catch{ raw = null; }
-            }else{
-              raw = await fetchJSON(u);
-            }
+              const txt = await fetchTEXT(u); try{ raw = JSON.parse(txt); }catch{ raw=null; }
+            }else raw = await fetchJSON(u);
             if(Array.isArray(raw) && raw.length){
               return raw.map(k=>({time:Math.floor(k[0]/1000),open:+k[1],high:+k[2],low:+k[3],close:+k[4]}));
             }
           }catch(e){}
         }
         throw new Error('Không lấy được dữ liệu nến (Binance).');
-      } else {
+      }else{
         const stooqSym = symbol.toLowerCase();
         const i = toStooqInt(interval);
         const base = `https://stooq.com/q/d/l/?s=${stooqSym}&i=${i}`;
-        const attempts = [
-          base,
-          `https://cors.isomorphic-git.org/${base}`,
-          `https://api.allorigins.win/raw?url=${encodeURIComponent(base)}`,
-          `https://r.jina.ai/http://stooq.com/q/d/l/?s=${stooqSym}&i=${i}`,
-          `https://r.jina.ai/https://stooq.com/q/d/l/?s=${stooqSym}&i=${i}`,
-        ];
-        const parseCSV = (txt) => {
-          const lines = txt.trim().split(/\n+/);
-          if(lines.length < 2) return [];
-          const head = lines[0].toLowerCase();
-          const rows = lines.slice(1);
+        const attempts = [base,`https://cors.isomorphic-git.org/${base}`,`https://api.allorigins.win/raw?url=${encodeURIComponent(base)}`,
+          `https://r.jina.ai/http://stooq.com/q/d/l/?s=${stooqSym}&i=${i}`,`https://r.jina.ai/https://stooq.com/q/d/l/?s=${stooqSym}&i=${i}`];
+        const parseCSV = (txt)=>{
+          const lines = txt.trim().split(/\n+/); if(lines.length<2) return [];
+          const head = lines[0].toLowerCase(); const rows = lines.slice(1);
           return rows.map(line=>{
-            const parts = line.split(',');
-            let d,t,o,h,l,c;
-            if(head.includes('time')){ [d,t,o,h,l,c] = parts; }
-            else { [d,o,h,l,c] = parts; t = '00:00:00'; }
+            const parts = line.split(','); let d,t,o,h,l,c;
+            if(head.includes('time')){ [d,t,o,h,l,c] = parts; } else { [d,o,h,l,c] = parts; t='00:00:00'; }
             const ts = Date.parse(`${d}T${t}Z`);
-            return { time: Math.floor(ts/1000), open:+o, high:+h, low:+l, close:+c };
-          }).filter(v=>isFinite(v.time) && isFinite(v.open));
+            return { time:Math.floor(ts/1000), open:+o, high:+h, low:+l, close:+c };
+          }).filter(v=>isFinite(v.time)&&isFinite(v.open));
         };
         for(const u of attempts){
           try{
             const txt = await fetchTEXT(u);
             let data = parseCSV(txt).slice(-limit);
-            if(interval==='4h' && $("resample4h").value==='on' && i==='60'){
-              data = resampleCandles(data, 4*60*60);
-            }
+            if(interval==='4h' && $('resample4h').value==='on' && i==='60'){ data = resampleCandles(data, 4*60*60); }
             if(data.length) return data;
           }catch(e){}
         }
         try{
           const dailyBase = `https://stooq.com/q/d/l/?s=${stooqSym}&i=d`;
-          const alt = [
-            dailyBase,
-            `https://cors.isomorphic-git.org/${dailyBase}`,
-            `https://api.allorigins.win/raw?url=${encodeURIComponent(dailyBase)}`,
-            `https://r.jina.ai/https://stooq.com/q/d/l/?s=${stooqSym}&i=d`
-          ];
+          const alt = [dailyBase,`https://cors.isomorphic-git.org/${dailyBase}`,`https://api.allorigins.win/raw?url=${encodeURIComponent(dailyBase)}`,`https://r.jina.ai/https://stooq.com/q/d/l/?s=${stooqSym}&i=d`];
           for(const u of alt){
             try{
-              const txt = await fetchTEXT(u);
-              const data = parseCSV(txt).slice(-limit);
-              if(data.length) return data;
+              const txt = await fetchTEXT(u); const data = parseCSV(txt).slice(-limit); if(data.length) return data;
             }catch(e){}
           }
         }catch(e){}
@@ -422,158 +407,64 @@
       }
     }
 
-    // ====== Indicators ======
+    // ====== Indicators (unchanged) ======
     function ema(values, period){ const k=2/(period+1); let prev=values[0]; const out=[prev]; for(let i=1;i<values.length;i++){ const v=values[i]*k+prev*(1-k); out.push(v); prev=v;} return out; }
-    function rsi(closes, period){
-      const g=[],l=[];
-      for(let i=1;i<closes.length;i++){const d=closes[i]-closes[i-1]; g.push(Math.max(0,d)); l.push(Math.max(0,-d));}
-      const eg=ema([g[0],...g],period), el=ema([l[0],...l],period);
-      const rs=eg.map((v,i)=>v/(el[i]||1e-9));
-      return rs.map(v=>100-100/(1+v));
-    }
-    function atr(c, p){
-      const t=[];
-      for(let i=0;i<c.length;i++){
-        if(i===0){t.push(c[i].high-c[i].low);continue;}
-        const h=c[i].high,l=c[i].low,pc=c[i-1].close;
-        t.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc)));
-      }
-      return ema(t,p);
-    }
-    function lwma(values, period){
-      const out = new Array(values.length).fill(NaN);
-      const denom = period*(period+1)/2;
-      for(let i=period-1;i<values.length;i++){
-        let sum=0; let w=1;
-        for(let j=i-period+1;j<=i;j++) sum += values[j]*w++;
-        out[i]= sum/denom;
-      }
-      for(let k=0;k<period-1;k++){ out[k] = values[k]; }
-      return out;
-    }
-    function resampleCandles(data, stepSec){
-      if(!data?.length) return [];
-      const out=[]; let bucket=null;
-      for(const c of data){
-        const t = Math.floor(c.time/stepSec)*stepSec;
-        if(!bucket || bucket.time!==t){
-          if(bucket) out.push(bucket);
-          bucket = {time:t, open:c.open, high:c.high, low:c.low, close:c.close};
-        }else{
-          bucket.high = Math.max(bucket.high, c.high);
-          bucket.low  = Math.min(bucket.low, c.low);
-          bucket.close= c.close;
-        }
-      }
-      if(bucket) out.push(bucket);
-      return out;
-    }
-
-    // ====== Extra indicators ======
+    function rsi(closes, period){ const g=[],l=[]; for(let i=1;i<closes.length;i++){const d=closes[i]-closes[i-1]; g.push(Math.max(0,d)); l.push(Math.max(0,-d));} const eg=ema([g[0],...g],period), el=ema([l[0],...l],period); const rs=eg.map((v,i)=>v/(el[i]||1e-9)); return rs.map(v=>100-100/(1+v)); }
+    function atr(c, p){ const t=[]; for(let i=0;i<c.length;i++){ if(i===0){t.push(c[i].high-c[i].low);continue;} const h=c[i].high,l=c[i].low,pc=c[i-1].close; t.push(Math.max(h-l,Math.abs(h-pc),Math.abs(l-pc))); } return ema(t,p); }
+    function lwma(values, period){ const out=new Array(values.length).fill(NaN); const denom=period*(period+1)/2; for(let i=period-1;i<values.length;i++){ let sum=0, w=1; for(let j=i-period+1;j<=i;j++) sum+=values[j]*w++; out[i]=sum/denom; } for(let k=0;k<period-1;k++){ out[k]=values[k]; } return out; }
+    function resampleCandles(data, stepSec){ if(!data?.length) return []; const out=[]; let bucket=null; for(const c of data){ const t=Math.floor(c.time/stepSec)*stepSec; if(!bucket||bucket.time!==t){ if(bucket) out.push(bucket); bucket={time:t,open:c.open,high:c.high,low:c.low,close:c.close}; }else{ bucket.high=Math.max(bucket.high,c.high); bucket.low=Math.min(bucket.low,c.low); bucket.close=c.close; } } if(bucket) out.push(bucket); return out; }
     function sma(values, p){ const out=[]; let s=0; for(let i=0;i<values.length;i++){ s+=values[i]; if(i>=p) s-=values[i-p]; out.push(i>=p-1? s/p : values[i]); } return out; }
-    function emaPrice(candles, p){ return ema(candles.map(c=>c.close), p); }
-    function adx(c, p=14){
-      const len=c.length; if(len< p+2) return {plus:[], minus:[], adx:[]};
-      const tr=[], plusDM=[], minusDM=[];
-      for(let i=1;i<len;i++){
-        const up=c[i].high-c[i-1].high, dn=c[i-1].low-c[i].low;
-        plusDM.push(up>dn && up>0 ? up : 0);
-        minusDM.push(dn>up && dn>0 ? dn : 0);
-        const trVal=Math.max(c[i].high-c[i].low, Math.abs(c[i].high-c[i-1].close), Math.abs(c[i].low-c[i-1].close));
-        tr.push(trVal);
-      }
-      const trEMA=ema([tr[0],...tr], p), plusEMA=ema([plusDM[0],...plusDM], p), minusEMA=ema([minusDM[0],...minusDM], p);
-      const plusDI=plusEMA.map((v,i)=> 100*(v/(trEMA[i]||1e-9)));
-      const minusDI=minusEMA.map((v,i)=> 100*(v/(trEMA[i]||1e-9)));
-      const dx=plusDI.map((v,i)=> 100*(Math.abs(v-(minusDI[i]||0))/Math.max(v+(minusDI[i]||0),1e-9)));
-      const adxArr=ema([dx[0],...dx], p);
-      return {plus:plusDI, minus:minusDI, adx:adxArr};
-    }
-    function swings(c, lb=3){
-      const hi=[], lo=[];
-      for(let i=lb;i<c.length-lb;i++){
-        let isHi=true, isLo=true;
-        for(let k=1;k<=lb;k++){
-          if(!(c[i].high >= c[i-k].high && c[i].high >= c[i+k].high)) isHi=false;
-          if(!(c[i].low  <= c[i-k].low  && c[i].low  <= c[i+k].low )) isLo=false;
-        }
-        hi[i]=isHi? c[i].high : NaN;
-        lo[i]=isLo? c[i].low  : NaN;
-      }
-      return {hi, lo};
-    }
-    function atrPercentile(atrArr, look=200){
-      const arr=atrArr.slice(-look).filter(x=>isFinite(x)); if(arr.length<10) return 50;
-      const last=arr[arr.length-1]; const s=arr.slice().sort((a,b)=>a-b);
-      const rank=s.findIndex(v=>v>=last); const r=rank<0? s.length-1 : rank;
-      return Math.round(100*(r/(s.length-1)));
-    }
-    function nearestLevels(c){
-      const {hi,lo}=swings(c,3); const n=c.length-1;
-      let lastHi=null,lastLo=null;
-      for(let i=n-1;i>=0;i--){ if(isFinite(hi[i])){ lastHi=hi[i]; break; } }
-      for(let i=n-1;i>=0;i--){ if(isFinite(lo[i])){ lastLo=lo[i]; break; } }
-      return { lastHi, lastLo };
-    }
+    function adx(c,p=14){ const len=c.length; if(len<p+2) return {plus:[],minus:[],adx:[]}; const tr=[],plusDM=[],minusDM=[]; for(let i=1;i<len;i++){ const up=c[i].high-c[i-1].high, dn=c[i-1].low-c[i].low; plusDM.push(up>dn&&up>0?up:0); minusDM.push(dn>up&&dn>0?dn:0); const trVal=Math.max(c[i].high-c[i].low,Math.abs(c[i].high-c[i-1].close),Math.abs(c[i].low-c[i-1].close)); tr.push(trVal);} const trEMA=ema([tr[0],...tr],p), plusEMA=ema([plusDM[0],...plusDM],p), minusEMA=ema([minusDM[0],...minusDM],p); const plusDI=plusEMA.map((v,i)=>100*(v/(trEMA[i]||1e-9))); const minusDI=minusEMA.map((v,i)=>100*(v/(trEMA[i]||1e-9))); const dx=plusDI.map((v,i)=>100*(Math.abs(v-(minusDI[i]||0))/Math.max(v+(minusDI[i]||0),1e-9))); const adxArr=ema([dx[0],...dx],p); return {plus:plusDI,minus:minusDI,adx:adxArr}; }
+    function swings(c,lb=3){ const hi=[],lo=[]; for(let i=lb;i<c.length-lb;i++){ let isHi=true,isLo=true; for(let k=1;k<=lb;k++){ if(!(c[i].high>=c[i-k].high && c[i].high>=c[i+k].high)) isHi=false; if(!(c[i].low<=c[i-k].low && c[i].low<=c[i+k].low)) isLo=false; } hi[i]=isHi?c[i].high:NaN; lo[i]=isLo?c[i].low:NaN; } return {hi,lo}; }
+    function atrPercentile(atrArr,look=200){ const arr=atrArr.slice(-look).filter(x=>isFinite(x)); if(arr.length<10) return 50; const last=arr[arr.length-1]; const s=arr.slice().sort((a,b)=>a-b); const rank=s.findIndex(v=>v>=last); const r=rank<0? s.length-1 : rank; return Math.round(100*(r/(s.length-1))); }
+    function nearestLevels(c){ const {hi,lo}=swings(c,3); const n=c.length-1; let lastHi=null,lastLo=null; for(let i=n-1;i>=0;i--){ if(isFinite(hi[i])){ lastHi=hi[i]; break; } } for(let i=n-1;i>=0;i--){ if(isFinite(lo[i])){ lastLo=lo[i]; break; } } return { lastHi, lastLo }; }
 
     // ====== Symbol list & UI ======
     function filterBinanceSymbols(){
-      const q = $("quote").value.trim();
-      const search = $("symSearch").value.trim().toUpperCase();
+      const q = $('quote').value.trim();
+      const search = $('symSearch').value.trim().toUpperCase();
       let arr = BINANCE_SYMBOLS_ALL;
       if(q) arr = arr.filter(s => s.endsWith(q));
       if(search) arr = arr.filter(s => s.includes(search));
       return arr;
     }
     function populateSymbols(){
-      const sel = $("symbol");
-      sel.innerHTML = '';
-      const market = $("market").value;
-      let arr = [];
-      if(market==='binance'){
-        arr = filterBinanceSymbols();
-      }else arr = STOOQ_SYMBOLS;
-      for(const s of arr){
-        const opt=document.createElement('option'); opt.textContent=s; opt.value=s; sel.appendChild(opt);
-      }
+      const sel = $('symbol'); sel.innerHTML='';
+      const market = $('market').value;
+      let arr = market==='binance' ? filterBinanceSymbols() : STOOQ_SYMBOLS;
+      for(const s of arr){ const opt=document.createElement('option'); opt.textContent=s; opt.value=s; sel.appendChild(opt); }
       if(arr.length) sel.value = arr[0];
-      $("dsHint").textContent = market==='binance' ? 'Dữ liệu phân tích lấy từ Binance (symbol tự động cập nhật).' : 'Dữ liệu phân tích lấy từ Stooq (qua proxy).';
+      $('dsHint').textContent = market==='binance' ? 'Dữ liệu phân tích lấy từ Binance (symbol tự động cập nhật).' : 'Dữ liệu phân tích lấy từ Stooq (qua proxy).';
       updateCountBadge();
     }
     function updateCountBadge(){
-      const count = ($("market").value==='binance') ? filterBinanceSymbols().length : STOOQ_SYMBOLS.length;
-      const el = $("symCount");
-      el.textContent = `Symbols: ${count}`;
-      el.className = BINANCE_SOURCE==='api' ? 'pill good' : 'pill bad';
+      const count = ($('market').value==='binance') ? filterBinanceSymbols().length : STOOQ_SYMBOLS.length;
+      const el = $('symCount'); el.textContent = `Symbols: ${count}`; el.className = BINANCE_SOURCE==='api' ? 'pill good' : 'pill bad';
     }
 
     // ====== Analysis state ======
     let candles=[], lastSignalText='', lastAnalysis=null;
 
     async function load(){
-      $("err").textContent='';
-      if($("market").value==='binance' && BINANCE_SYMBOLS_ALL.length===0){
-        await fetchBinanceSymbols();
-      }
-      if($("symbol").options.length===0) populateSymbols();
-
-      const sym = $("symbol").value?.trim();
-      if(!sym){ $("err").textContent='Không có symbol để tải.'; return; }
-      const intv = $("interval").value;
+      $('err').textContent='';
+      if($('market').value==='binance' && BINANCE_SYMBOLS_ALL.length===0){ await fetchBinanceSymbols(); }
+      if($('symbol').options.length===0) populateSymbols();
+      const sym = $('symbol').value?.trim(); if(!sym){ $('err').textContent='Không có symbol để tải.'; return; }
+      const intv = $('interval').value;
       createTV(sym, intv);
       try{
-        const fetchIntv = $("market").value==='binance'? toBinanceInt(intv): intv;
+        const fetchIntv = $('market').value==='binance'? toBinanceInt(intv) : intv;
         candles = await fetchKlines(sym, fetchIntv, 600);
-      }catch(e){ $("err").textContent = 'Lỗi dữ liệu: '+e.message; }
+      }catch(e){ $('err').textContent = 'Lỗi dữ liệu: '+e.message; }
     }
 
     function analyzeRSI(direction){
-      if(candles.length<60){ $("signal").innerHTML='<span class="red">Dữ liệu quá ít để phân tích.</span>'; return; }
+      if(candles.length<60){ $('signal').innerHTML='<span class="red">Dữ liệu quá ít để phân tích.</span>'; return; }
       const closes = candles.map(c=>c.close);
       const baseRSI = rsi(closes, 14);
       const emaRSI9  = ema(baseRSI, 9);
       const lwmaRSI45 = lwma(baseRSI, 45);
-      const at = atr(candles, Math.max(2, +$("atrPeriod").value|0));
+      const at = atr(candles, Math.max(2, +$('atrPeriod').value|0));
       const n = closes.length-1;
       const price = closes[n];
       const rsiV  = baseRSI[n]||50;
@@ -586,27 +477,27 @@
       let ok=false, sl=0, tp=0, why=[];
       if(direction==='long'){
         ok = (crossUp || trendUp) && rsiV > 45;
-        sl = price - +$("atrSL").value * at[n];
-        tp = price + (+$("rr").value * (price - sl));
+        sl = price - +$('atrSL').value * at[n];
+        tp = price + (+$('rr').value * (price - sl));
         if(crossUp) why.push('EMA9(RSI) cắt LWMA45(RSI) đi lên');
         if(trendUp) why.push('EMA9(RSI) > LWMA45(RSI)');
         why.push(`RSI14=${fmt(rsiV,1)}`);
       } else {
         ok = (crossDn || trendDn) && rsiV < 55;
-        sl = price + +$("atrSL").value * at[n];
-        tp = price - (+$("rr").value * (sl - price));
+        sl = price + +$('atrSL').value * at[n];
+        tp = price - (+$('rr').value * (sl - price));
         if(crossDn) why.push('EMA9(RSI) cắt LWMA45(RSI) đi xuống');
         if(trendDn) why.push('EMA9(RSI) < LWMA45(RSI)');
         why.push(`RSI14=${fmt(rsiV,1)}`);
       }
 
-      const sym=$("symbol").value, intv=$("interval").value; 
+      const sym=$('symbol').value, intv=$('interval').value; 
       const status= ok?'<span class="green">PHÙ HỢP</span>':'<span class="red">CHƯA PHÙ HỢP</span>';
       const text=`
 — Gợi ý ${direction==='long'?'BUY':'SELL'} (${sym} · ${intv}) —
 Entry: ${fmt(price)}
-SL: ${fmt(sl)}  (ATRx${$("atrSL").value})
-TP: ${fmt(tp)}  (R:R ${$("rr").value})
+SL: ${fmt(sl)}  (ATRx${$('atrSL').value})
+TP: ${fmt(tp)}  (R:R ${$('rr').value})
 Điều kiện: ${why.join(' · ')}
 Cấu hình: RSI14 + LWMA45(RSI) + EMA9(RSI)
 Kết luận: ${ok?'NÊN CHỜ PULLBACK HOẶC VÀO VỊ THẾ NHẸ':'Quan sát thêm, đợi xác nhận'}
@@ -614,15 +505,15 @@ Kết luận: ${ok?'NÊN CHỜ PULLBACK HOẶC VÀO VỊ THẾ NHẸ':'Quan sát
       lastSignalText=text;
 
       lastAnalysis = {
-        symbol: $("symbol").value,
-        interval: $("interval").value,
-        market: $("market").value,
+        symbol: $('symbol').value,
+        interval: $('interval').value,
+        market: $('market').value,
         entry: +fmt(price),
         sl: +fmt(sl),
         tp: +fmt(tp),
-        rr: +$("rr").value,
-        atrPeriod: Math.max(2, +$("atrPeriod").value|0),
-        atrSLmult: +$("atrSL").value,
+        rr: +$('rr').value,
+        atrPeriod: Math.max(2, +$('atrPeriod').value|0),
+        atrSLmult: +$('atrSL').value,
         rsi14: +fmt(rsiV,1),
         ema9_gt_lwma45: emaRSI9[n] > lwmaRSI45[n],
         crossUp, crossDn, trendUp, trendDn,
@@ -630,10 +521,11 @@ Kết luận: ${ok?'NÊN CHỜ PULLBACK HOẶC VÀO VỊ THẾ NHẸ':'Quan sát
         notes: lastSignalText
       };
 
-      $("signal").innerHTML=`<strong>Kết quả:</strong> ${status}<br><br><pre style="white-space:pre-wrap">${text}</pre>`;
+      $('signal').innerHTML=`<strong>Kết quả:</strong> ${status}<br><br><pre style="white-space:pre-wrap">${text}</pre>`;
     }
 
-    // ====== Smart decision engine ======
+    function sma(values, p){ const out=[]; let s=0; for(let i=0;i<values.length;i++){ s+=values[i]; if(i>=p) s-=values[i-p]; out.push(i>=p-1? s/p : values[i]); } return out; }
+
     function smartEntryDecision(direction, candles, cfg){
       const n=candles.length-1; const price=candles[n].close;
       const closes=candles.map(c=>c.close);
@@ -674,26 +566,14 @@ Kết luận: ${ok?'NÊN CHỜ PULLBACK HOẶC VÀO VỊ THẾ NHẸ':'Quan sát
 
       let orderType='market', entry=price, sl=slMkt, tp=tpMkt, why=[];
       if (strongTrend && momentumOK && nearSwingForStop){
-        orderType='stop'; entry=entryStop; sl=slStop; tp=tpStop;
-        why.push('ADX ≥ 25 & momentum ủng hộ, gần swing → breakout stop');
+        orderType='stop'; entry=entryStop; sl=slStop; tp=tpStop; why.push('ADX ≥ 25 & momentum ủng hộ, gần swing → breakout stop');
       } else if (trendOK && (farFromEMA || distToSwing>1.0*atrNow)){
-        orderType='limit'; entry=entryLimit; sl=slLimit; tp=tpLimit;
-        why.push('Trend đúng hướng nhưng giá xa EMA/swing → chờ kéo về (Limit)');
-      } else {
-        orderType='market'; entry=price; sl=slMkt; tp=tpMkt;
-        why.push('Điều kiện đủ, khoảng cách chấp nhận → vào ngay (Market)');
-      }
+        orderType='limit'; entry=entryLimit; sl=slLimit; tp=tpLimit; why.push('Trend đúng hướng nhưng giá xa EMA/swing → chờ kéo về (Limit)');
+      } else { orderType='market'; entry=price; sl=slMkt; tp=tpMkt; why.push('Điều kiện đủ, khoảng cách chấp nhận → vào ngay (Market)'); }
 
-      // FIX #2 — Enforce correct order type vs. current price
-      if(direction==='long'){
-        if(entry < price) orderType = 'limit';
-        else if(entry > price) orderType = 'stop';
-        else orderType = 'market';
-      }else{ // short
-        if(entry > price) orderType = 'limit';
-        else if(entry < price) orderType = 'stop';
-        else orderType = 'market';
-      }
+      // enforce correct order type vs market price
+      if(direction==='long'){ if(entry < price) orderType='limit'; else if(entry > price) orderType='stop'; else orderType='market'; }
+      else { if(entry > price) orderType='limit'; else if(entry < price) orderType='stop'; else orderType='market'; }
 
       let score=50;
       if(trendOK) score+=12; else score-=12;
@@ -701,230 +581,90 @@ Kết luận: ${ok?'NÊN CHỜ PULLBACK HOẶC VÀO VỊ THẾ NHẸ':'Quan sát
       score += Math.min(20, Math.max(-20, (25-(Math.abs(distToEma)/Math.max(atrNow,1e-9))*25)));
       score += Math.min(8, (regime>=60? 4 : 0) + (regime<=20? -2: 0));
       score = Math.max(0, Math.min(100, Math.round(score)));
-
       const rrEst = Math.abs((entry - sl))>1e-9 ? Math.abs((tp - entry)/(entry - sl)) : cfg.rr;
       why.push(`RR~${fmt(rrEst,2)}, ATR regime ~P${regime}, ADX=${fmt(adxNow,1)}, EMA34 ${direction==='long'?'hỗ trợ↑':'kháng cự↓'}=${fmt(ema34Now,4)}`);
 
-      return { orderType, entry, sl, tp, score, why, context: {
-        price, atrNow, ema34Now, sma200Now, adxNow, plusNow, minusNow, lastHi, lastLo, regime
-      }};
+      return { orderType, entry, sl, tp, score, why, context: { price, atrNow, ema34Now, sma200Now, adxNow, plusNow, minusNow, lastHi, lastLo, regime } };
     }
 
     // ====== UI Events ======
-    $("reloadSymbols").onclick = async ()=>{
-      BINANCE_SYMBOLS_ALL = [];
-      await fetchBinanceSymbols();
-      populateSymbols();
-    };
-    $("testProxies").onclick = async ()=>{
-      $("apiStatus").style.display = 'inline-block';
-      $("apiStatus").className = 'pill';
-      $("apiStatus").textContent = 'Đang test...';
+    $('reloadSymbols').onclick = async ()=>{ BINANCE_SYMBOLS_ALL = []; await fetchBinanceSymbols(); populateSymbols(); };
+    $('testProxies').onclick = async ()=>{
+      $('apiStatus').style.display = 'inline-block'; $('apiStatus').className = 'pill'; $('apiStatus').textContent = 'Đang test...';
       const r = await fetchBinanceSymbols();
-      if(r?.ok){
-        $("apiStatus").className = 'pill good';
-        $("apiStatus").textContent = `OK: ${r.count} symbols • ${r.url}`;
-      }else{
-        $("apiStatus").className = 'pill bad';
-        $("apiStatus").textContent = 'Không truy cập được API. Đang dùng fallback. Bạn hãy nhập "Custom proxy prefix".';
-      }
+      if(r?.ok){ $('apiStatus').className = 'pill good'; $('apiStatus').textContent = `OK: ${r.count} symbols • ${r.url}`; }
+      else { $('apiStatus').className = 'pill bad'; $('apiStatus').textContent = 'Không truy cập được API. Nhập \"Custom proxy prefix\" rồi thử lại.'; }
       populateSymbols();
     };
-    $("refresh").onclick=load;
-    $("auto").onclick = async () => {
+    $('refresh').onclick=load;
+    $('auto').onclick = async () => {
       try{
-        $("err").textContent='';
+        $('err').textContent='';
         if(!candles.length) await load();
-        if(!candles.length){ $("err").textContent='Không có dữ liệu để phân tích.'; return; }
+        if(!candles.length){ $('err').textContent='Không có dữ liệu để phân tích.'; return; }
         const closes = candles.map(c=>c.close);
-        if(closes.length<60){
-          $("signal").innerHTML='<span class="red">Dữ liệu quá ít (cần ≥ 60 nến). Hãy chọn khung thời gian lớn hơn hoặc thử lại.</span>';
-          return;
-        }
-        const baseRSI = rsi(closes, 14);
-        const emaRSI9 = ema(baseRSI, 9);
-        const lwmaRSI45 = lwma(baseRSI, 45);
+        if(closes.length<60){ $('signal').innerHTML='<span class="red">Dữ liệu quá ít (≥60 nến).</span>'; return; }
+        const baseRSI = rsi(closes, 14), emaRSI9 = ema(baseRSI, 9), lwmaRSI45 = lwma(baseRSI, 45);
         const n = closes.length-1;
-        if(!isFinite(emaRSI9[n]) || !isFinite(lwmaRSI45[n])){
-          $("err").textContent='Không đủ dữ liệu để tính RSI/EMA/LWMA.';
-          return;
-        }
+        if(!isFinite(emaRSI9[n]) || !isFinite(lwmaRSI45[n])){ $('err').textContent='Không đủ dữ liệu để tính RSI/EMA/LWMA.'; return; }
         const dir = (emaRSI9[n] >= lwmaRSI45[n]) ? 'long' : 'short';
         analyzeRSI(dir);
-      }catch(e){
-        $("err").textContent = 'Lỗi Auto Analyze: '+ e.message;
-      }
+      }catch(e){ $('err').textContent = 'Lỗi Auto Analyze: '+ e.message; }
     };
-    $("btnLong").onclick=()=>analyzeRSI('long');
-    $("btnShort").onclick=()=>analyzeRSI('short');
-    $("clear").onclick=()=>{ $("signal").innerHTML=''; lastSignalText=''; lastAnalysis=null; };
-    $("copy").onclick=()=>{ if(!lastSignalText) return; navigator.clipboard.writeText(lastSignalText); };
-    $("symSearch").addEventListener('input', ()=>{ populateSymbols(); });
-    $("quote").addEventListener('change', ()=>{ populateSymbols(); });
-    $("market").addEventListener('change', async ()=>{
-      if($("market").value==='binance' && BINANCE_SYMBOLS_ALL.length===0){
-        await fetchBinanceSymbols();
-      }
-      populateSymbols();
-      load();
-    });
-    $("symbol").addEventListener('change', load);
-    $("interval").addEventListener('change', load);
-    $("resample4h").addEventListener('change', load);
+    $('btnLong').onclick=()=>analyzeRSI('long');
+    $('btnShort').onclick=()=>analyzeRSI('short');
+    $('clear').onclick=()=>{ $('signal').innerHTML=''; lastSignalText=''; lastAnalysis=null; };
+    $('copy').onclick=()=>{ if(!lastSignalText) return; navigator.clipboard.writeText(lastSignalText); };
+    $('symSearch').addEventListener('input', ()=>{ populateSymbols(); });
+    $('quote').addEventListener('change', ()=>{ populateSymbols(); });
+    $('market').addEventListener('change', async ()=>{ if($('market').value==='binance' && BINANCE_SYMBOLS_ALL.length===0){ await fetchBinanceSymbols(); } populateSymbols(); load(); });
+    $('symbol').addEventListener('change', load);
+    $('interval').addEventListener('change', load);
+    $('resample4h').addEventListener('change', load);
 
     // ====== Smart Suggest button ======
-    $("smartSuggest").onclick = async ()=>{
+    $('smartSuggest').onclick = async ()=>{
       try{
-        $("err").textContent='';
+        $('err').textContent='';
         if(!candles.length) await load();
-        if(!candles.length){ $("err").textContent='Không có dữ liệu để phân tích.'; return; }
+        if(!candles.length){ $('err').textContent='Không có dữ liệu để phân tích.'; return; }
         const closes=candles.map(c=>c.close);
-        if(closes.length<60){ $("signal").innerHTML='<span class="red">Dữ liệu quá ít (≥60 nến).</span>'; return; }
+        if(closes.length<60){ $('signal').innerHTML='<span class="red">Dữ liệu quá ít (≥60 nến).</span>'; return; }
         const baseRSI=rsi(closes,14), e9=ema(baseRSI,9), l45=lwma(baseRSI,45);
         const n=closes.length-1; const dir = (e9[n] >= l45[n]) ? 'long' : 'short';
 
-        const cfg = { rr:+$("rr").value, atrSLmult:+$("atrSL").value, atrPeriod: Math.max(2, +$("atrPeriod").value|0) };
+        const cfg = { rr:+$('rr').value, atrSLmult:+$('atrSL').value, atrPeriod: Math.max(2, +$('atrPeriod').value|0) };
         const dec = smartEntryDecision(dir, candles, cfg);
 
-        const sym=$("symbol").value, intv=$("interval").value;
+        const sym=$('symbol').value, intv=$('interval').value;
         const text = `
 — Gợi ý nâng cao ${dir==='long'?'BUY':'SELL'} (${sym} · ${intv}) —
 Kiểu lệnh: ${dec.orderType.toUpperCase()}
 Entry: ${fmt(dec.entry)}
-SL: ${fmt(dec.sl)}  (ATRx${$("atrSL").value})
-TP: ${fmt(dec.tp)}  (R:R mục tiêu ${$("rr").value})
+SL: ${fmt(dec.sl)}  (ATRx${$('atrSL').value})
+TP: ${fmt(dec.tp)}  (R:R mục tiêu ${$('rr').value})
 Điểm tin cậy (score): ${dec.score}/100
 Lý do: ${dec.why.join(' · ')}
 `.trim();
 
         lastSignalText = text;
-        lastAnalysis = {
-          ...(lastAnalysis||{}),
-          symbol: sym, interval: intv, market: $("market").value,
+        lastAnalysis = { ...(lastAnalysis||{}),
+          symbol: sym, interval: intv, market: $('market').value,
           entry:+fmt(dec.entry), sl:+fmt(dec.sl), tp:+fmt(dec.tp),
           rr: cfg.rr, atrPeriod: cfg.atrPeriod, atrSLmult: cfg.atrSLmult,
           smart: { orderType: dec.orderType, score: dec.score, ctx: dec.context }
         };
 
-        $("signal").innerHTML = `<strong>Kết quả (AI mini):</strong> <span class="${dec.score>=60?'green':'red'}">${dec.score>=60?'KHẢ QUAN':'THẬN TRỌNG'}</span><br><br><pre style="white-space:pre-wrap">${text}</pre>`;
-      }catch(e){
-        $("err").textContent = 'Lỗi Smart Suggest: '+(e?.message||e);
-      }
+        $('signal').innerHTML = `<strong>Kết quả (AI mini):</strong> <span class="${dec.score>=60?'green':'red'}">${dec.score>=60?'KHẢ QUAN':'THẬN TRỌNG'}</span><br><br><pre style="white-space:pre-wrap">${text}</pre>`;
+      }catch(e){ $('err').textContent = 'Lỗi Smart Suggest: '+(e?.message||e); }
     };
 
-    // ====== OpenAI Explain (fully wired) ======
-    function buildAIPrompt() {
-      if (!lastAnalysis || !lastSignalText) {
-        return "Không có tín hiệu/phân tích nào. Hãy bấm 'Phân tích & Gợi ý' hoặc 'Gợi ý nâng cao' trước.";
-      }
-      const a = lastAnalysis;
-      return `
-Bạn là trợ lý giao dịch. Hãy giải thích rõ ràng setup vừa phân tích:
-
-TÓM TẮT:
-${lastSignalText}
-
-CHI TIẾT THÔNG SỐ:
-- Symbol: ${a.symbol} (${a.market})
-- Khung thời gian: ${a.interval}
-- SL/TP: ${a.sl} / ${a.tp} (R:R ${a.rr})
-- ATR: p=${a.atrPeriod}, mult=${a.atrSLmult}
-- Smart: ${a.smart ? ('type='+a.smart.orderType+', score='+a.smart.score) : 'N/A'}
-
-YÊU CẦU:
-1) Giải thích vì sao ra kết luận trên (xu hướng/động lượng/ATR).
-2) Gợi ý cách vào lệnh (market/pullback limit/breakout stop) và quản trị lệnh.
-3) Nêu rủi ro và điều kiện vô hiệu (invalidation).
-4) Ngắn gọn, từng ý rõ ràng (gạch đầu dòng).
-`.trim();
-    }
-
-    async function callOpenAIExplain(key, prompt) {
-      const url = "https://api.openai.com/v1/chat/completions";
-      const body = {
-        model: "gpt-4o-mini",
-        temperature: 0.3,
-        messages: [
-          { role: "system", content: "Bạn là trợ lý giao dịch thận trọng, giải thích súc tích, có cấu trúc, tránh phóng đại." },
-          { role: "user",   content: prompt }
-        ]
-      };
-      const r = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${key}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-      if (!r.ok) {
-        let detail=""; try{ detail=await r.text(); }catch{}
-        throw new Error(`OpenAI API lỗi HTTP ${r.status}${detail ? ` — ${detail}` : ""}`);
-      }
-      const data = await r.json();
-      const text = data?.choices?.[0]?.message?.content?.trim();
-      if (!text) throw new Error("Không nhận được nội dung phản hồi từ OpenAI.");
-      return text;
-    }
-
-    $("askAI").onclick = async () => {
-      const key = $("openaiKey").value.trim();
-      const out = $("aiOut");
-      out.value = "";
-      $("err").textContent = "";
-
-      if (!key || !/^sk-/.test(key)) {
-        $("err").textContent = "Vui lòng nhập OpenAI API Key hợp lệ (bắt đầu bằng sk-...).";
-        return;
-      }
-      if (!lastAnalysis || !lastSignalText) {
-        $("err").textContent = "Chưa có dữ liệu phân tích. Hãy bấm 'Phân tích & Gợi ý' hoặc 'Gợi ý nâng cao' trước.";
-        return;
-      }
-      const btn = $("askAI");
-      btn.disabled = true; btn.textContent = "Đang hỏi AI...";
-      try {
-        const prompt = buildAIPrompt();
-        const answer = await callOpenAIExplain(key, prompt);
-        out.value = answer;
-      } catch (e) {
-        out.value = "";
-        $("err").textContent = "OpenAI error: " + (e?.message || e);
-      } finally {
-        btn.disabled = false; btn.textContent = "Nhờ AI giải thích setup";
-      }
-    };
-
-    // ====== Keyboard shortcuts ======
-    window.addEventListener('keydown', (e)=>{
-      if (e.target && ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
-      if(e.key==='a' || e.key==='A'){ $("auto").click(); }
-      if(e.key==='l' || e.key==='L'){ $("btnLong").click(); }
-      if(e.key==='s' || e.key==='S'){ $("btnShort").click(); }
-    });
-
-    // ====== Self-tests & init ======
-    function runSelfTests(){
-      const out=[];
-      try{
-        const sampleCSV = 'Date,Time,Open,High,Low,Close,Volume\n2025-10-11,09:00:00,1,2,0.5,1.5,10\n2025-10-11,09:05:00,1.5,2.5,1.0,2.0,12\n';
-        const lines = sampleCSV.trim().split(/\n+/);
-        out.push(`[OK] Regex split lines=${lines.length}`);
-        const arr=[1,2,3,4,5];
-        const lw = lwma(arr,3);
-        out.push(`[OK] LWMA last=${lw[4].toFixed(6)} (expect ~4.333333)`);
-        const r = rsi([1,1,1,1,1],14);
-        out.push(`[OK] RSI flat last=${r[r.length-1].toFixed(2)} (impl-specific)`);
-      }catch(e){ out.push('[ERR] Self-test: '+e.message); }
-      console.log('Self-tests:', out.join('\n'));
-    }
-
+    // ====== Init ======
     window.addEventListener('load', async ()=>{
       warnIfLocalFile();
       await fetchBinanceSymbols();
       populateSymbols();
       await load();
-      runSelfTests();
     });
   </script>
 </body>

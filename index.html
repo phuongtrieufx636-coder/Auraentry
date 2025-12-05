@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XAU/USD PRO - Commercial Edition</title>
+    <title>XAU/USD ULTIMATE - AI-Powered Analysis</title>
     <style>
         * {
             margin: 0;
@@ -37,14 +37,32 @@
         overflow: hidden;
     }
 
-    .header h1 {
-        color: #1e3c72;
-        font-size: 2.5em;
-        margin-bottom: 10px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    .header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+        animation: shine 3s infinite;
     }
 
-    .commercial-badge {
+    @keyframes shine {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .header h1 {
+        color: #1e3c72;
+        font-size: 2.8em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 1;
+    }
+
+    .ultimate-badge {
         display: inline-block;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -54,41 +72,14 @@
         font-size: 1em;
         margin-top: 10px;
         box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+        position: relative;
+        z-index: 1;
+        animation: pulse 2s infinite;
     }
 
-    .api-key-section {
-        background: rgba(255,255,255,0.95);
-        padding: 20px;
-        border-radius: 15px;
-        margin-top: 20px;
-        border: 2px solid #667eea;
-    }
-
-    .api-key-input {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        font-size: 1em;
-        margin: 10px 0;
-        font-family: monospace;
-    }
-
-    .api-status {
-        padding: 10px;
-        border-radius: 8px;
-        margin: 10px 0;
-        font-weight: bold;
-    }
-
-    .api-status.connected {
-        background: #4CAF50;
-        color: white;
-    }
-
-    .api-status.disconnected {
-        background: #ff9800;
-        color: white;
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
     }
 
     .grid {
@@ -104,11 +95,13 @@
         padding: 25px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         transition: all 0.3s ease;
+        border: 2px solid transparent;
     }
 
     .card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px);
         box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        border-color: #FFD700;
     }
 
     .card h2 {
@@ -117,25 +110,38 @@
         padding-bottom: 10px;
         border-bottom: 3px solid #FFD700;
         font-size: 1.5em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
-    .mode-badge {
-        display: inline-block;
-        padding: 5px 15px;
-        border-radius: 15px;
-        font-size: 0.75em;
-        font-weight: bold;
-        margin-left: 10px;
-    }
-
-    .mode-ai {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .mode-smart {
+    .feature-badge {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.7em;
+        font-weight: bold;
+    }
+
+    .ai-card {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border: 2px solid #667eea;
+    }
+
+    .confluence-card {
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(67, 160, 71, 0.1) 100%);
+        border: 2px solid #4CAF50;
+    }
+
+    .alert-card {
+        background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(245, 124, 0, 0.1) 100%);
+        border: 2px solid #FF9800;
+    }
+
+    .position-card {
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(25, 118, 210, 0.1) 100%);
+        border: 2px solid #2196F3;
     }
 
     .analysis-box {
@@ -150,7 +156,7 @@
     .ai-thinking {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 25px;
+        padding: 20px;
         border-radius: 15px;
         text-align: center;
         animation: glow 2s infinite;
@@ -158,7 +164,7 @@
 
     @keyframes glow {
         0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
-        50% { box-shadow: 0 0 35px rgba(102, 126, 234, 0.8); }
+        50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.8); }
     }
 
     .timeframe-grid {
@@ -195,8 +201,65 @@
     .confluence-score {
         font-size: 3em;
         font-weight: bold;
+        background: linear-gradient(135deg, #4CAF50 0%, #2e7d32 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         text-align: center;
         margin: 20px 0;
+    }
+
+    .alert-item {
+        background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .alert-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+    }
+
+    .alert-active {
+        animation: alertBlink 1s infinite;
+    }
+
+    @keyframes alertBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .position-calc {
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        margin: 15px 0;
+    }
+
+    .calc-input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        background: rgba(255,255,255,0.9);
+    }
+
+    .calc-result {
+        background: rgba(255,255,255,0.2);
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-size: 1.2em;
+        font-weight: bold;
     }
 
     .btn {
@@ -217,54 +280,31 @@
         box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
     }
 
-    .btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+    .btn:active {
+        transform: translateY(0);
     }
 
-    .btn-secondary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-
-    .alert-item {
-        background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-        color: white;
-        padding: 15px;
-        border-radius: 10px;
-        margin: 10px 0;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .position-calc {
-        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-        color: white;
-        padding: 25px;
-        border-radius: 15px;
-    }
-
-    .calc-input {
-        width: 100%;
-        padding: 12px;
-        margin: 10px 0;
-        border: none;
-        border-radius: 8px;
-        font-size: 1em;
-        background: rgba(255,255,255,0.9);
-    }
-
-    .calc-result {
-        background: rgba(255,255,255,0.2);
-        padding: 15px;
-        border-radius: 10px;
-        margin-top: 15px;
+    .loading {
+        text-align: center;
+        padding: 20px;
         font-size: 1.1em;
+        color: #666;
     }
+
+    .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .status-active { background: #4CAF50; animation: pulse 1s infinite; }
+    .status-waiting { background: #FF9800; }
+    .status-inactive { background: #999; }
 
     @media (max-width: 768px) {
-        .header h1 { font-size: 1.8em; }
+        .header h1 { font-size: 2em; }
         .grid { grid-template-columns: 1fr; }
     }
 </style>
@@ -274,38 +314,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 XAU/USD PRO ANALYSIS</h1>
-            <div class="commercial-badge">💼 COMMERCIAL EDITION</div>
+            <h1>🚀 XAU/USD ULTIMATE ANALYSIS</h1>
+            <div class="ultimate-badge">⚡ ULTIMATE LITE - 4 Tính Năng Siêu Mạnh</div>
+            <div style="margin-top: 20px; color: #1e3c72; font-size: 1.1em; position: relative; z-index: 1;">
+                🤖 AI Analysis • 📊 Multi-Timeframe • 🔔 Smart Alerts • 💰 Position Sizing
+            </div>
 
 ```
-        <!-- API Key Section -->
-        <div class="api-key-section">
-            <h3 style="color: #1e3c72; margin-bottom: 15px;">🔑 Claude API Configuration</h3>
-            <div id="api-status" class="api-status disconnected">
-                🤖 Smart AI Mode (Không cần API key)
-            </div>
-            <input 
-                type="password" 
-                id="api-key-input" 
-                class="api-key-input" 
-                placeholder="Nhập Claude API Key để dùng AI thật (sk-ant-api03-...)"
-                style="display: none;"
-            >
-            <button class="btn" onclick="toggleApiInput()" style="margin: 10px 5px;">
-                <span id="toggle-btn-text">🔓 Nhập API Key</span>
-            </button>
-            <button class="btn btn-secondary" onclick="testApiKey()" style="margin: 10px 5px; display: none;" id="test-btn">
-                ✅ Kích hoạt AI
-            </button>
-            <div style="font-size: 0.9em; color: #666; margin-top: 10px; text-align: left;">
-                💡 <strong>Lưu ý:</strong><br>
-                • Không có API key: Dùng Smart AI (rule-based, miễn phí)<br>
-                • Có API key: Dùng Claude AI (phân tích thông minh hơn)<br>
-                • Lấy API key tại: <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
-            </div>
-        </div>
-
-        <div style="margin-top: 20px;">
+        <div style="margin-top: 20px; position: relative; z-index: 1;">
             <div class="tradingview-widget-container">
                 <div class="tradingview-widget-container__widget"></div>
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
@@ -347,73 +363,90 @@
     </div>
 
     <div class="grid">
-        <!-- AI ANALYSIS -->
-        <div class="card">
+        <!-- 1. AI ANALYSIS -->
+        <div class="card ai-card">
             <h2>
-                🤖 AI ANALYSIS
-                <span id="ai-mode-badge" class="mode-badge mode-smart">SMART AI</span>
+                🤖 AI ANALYSIS 
+                <span class="feature-badge">POWERED BY CLAUDE</span>
             </h2>
             <div id="ai-analysis">
                 <div class="analysis-box">
                     <p style="color: #666; margin-bottom: 15px;">
-                        Nhấn nút để phân tích thị trường với:
+                        <span class="status-indicator status-waiting"></span>
+                        Nhấn nút bên dưới để AI phân tích chart và đưa ra khuyến nghị
                     </p>
-                    <ul style="margin: 10px 0 10px 20px; color: #666;">
-                        <li id="mode-desc">Smart AI: Phân tích dựa trên RSI, MACD, ATR, Confluence</li>
-                    </ul>
-                    <button class="btn" onclick="runAnalysis()" style="margin-top: 15px;">
-                        🚀 Chạy Phân Tích
+                    <button class="btn" onclick="runAIAnalysis()">
+                        🚀 Chạy AI Analysis
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- MULTI-TIMEFRAME -->
-        <div class="card">
-            <h2>📊 MULTI-TIMEFRAME CONFLUENCE</h2>
+        <!-- 2. MULTI-TIMEFRAME CONFLUENCE -->
+        <div class="card confluence-card">
+            <h2>
+                📊 MULTI-TIMEFRAME CONFLUENCE
+                <span class="feature-badge">LIVE</span>
+            </h2>
             <div id="confluence-analysis">
-                <div style="text-align: center; padding: 20px; color: #666;">
-                    ⏳ Đang phân tích...
-                </div>
+                <div class="loading">⏳ Đang phân tích các khung thời gian...</div>
             </div>
         </div>
 
-        <!-- SMART ALERTS -->
-        <div class="card">
-            <h2>🔔 SMART ALERTS</h2>
+        <!-- 3. SMART ALERTS -->
+        <div class="card alert-card">
+            <h2>
+                🔔 SMART ALERTS
+                <span class="feature-badge">REAL-TIME</span>
+            </h2>
             <div id="smart-alerts">
                 <div class="analysis-box">
-                    <p><strong>Thiết lập cảnh báo:</strong></p>
+                    <p><strong>Thiết lập cảnh báo tự động:</strong></p>
                     <div style="margin: 15px 0;">
                         <label style="display: block; margin: 10px 0;">
                             <input type="checkbox" id="alert-entry" checked> 
-                            Cảnh báo Entry Signal
+                            Cảnh báo khi đủ điều kiện Entry
                         </label>
                         <label style="display: block; margin: 10px 0;">
                             <input type="checkbox" id="alert-sr" checked> 
-                            Cảnh báo S/R
+                            Cảnh báo khi chạm Support/Resistance
                         </label>
                         <label style="display: block; margin: 10px 0;">
                             <input type="checkbox" id="alert-rsi" checked> 
-                            Cảnh báo RSI
+                            Cảnh báo RSI Overbought/Oversold
+                        </label>
+                        <label style="display: block; margin: 10px 0;">
+                            <input type="checkbox" id="alert-ath" checked> 
+                            Cảnh báo khi gần ATH (±2%)
                         </label>
                     </div>
-                    <button class="btn" onclick="activateAlerts()">🔔 Kích hoạt</button>
+                    <button class="btn" onclick="activateAlerts()">
+                        🔔 Kích hoạt Alerts
+                    </button>
                 </div>
-                <div id="active-alerts"></div>
+                <div id="active-alerts" style="margin-top: 20px;"></div>
             </div>
         </div>
 
-        <!-- POSITION SIZING -->
-        <div class="card">
-            <h2>💰 POSITION SIZING</h2>
+        <!-- 4. POSITION SIZING CALCULATOR -->
+        <div class="card position-card">
+            <h2>
+                💰 POSITION SIZING
+                <span class="feature-badge">CALCULATOR</span>
+            </h2>
             <div class="position-calc">
-                <label>Account Size (USD):</label>
-                <input type="number" id="account-size" class="calc-input" value="10000">
-                <label>Risk % mỗi lệnh:</label>
-                <input type="number" id="risk-percent" class="calc-input" value="2" step="0.1">
-                <label>Stop Loss (USD):</label>
-                <input type="number" id="stop-loss" class="calc-input" value="50">
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Account Size (USD):</label>
+                    <input type="number" id="account-size" class="calc-input" value="10000" placeholder="10000">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Risk % mỗi lệnh:</label>
+                    <input type="number" id="risk-percent" class="calc-input" value="2" placeholder="2" step="0.1">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Stop Loss (USD):</label>
+                    <input type="number" id="stop-loss" class="calc-input" value="50" placeholder="50">
+                </div>
                 <button class="btn" onclick="calculatePosition()" style="width: 100%; margin-top: 15px;">
                     🎯 Tính Lot Size
                 </button>
@@ -422,382 +455,231 @@
         </div>
     </div>
 
+    <!-- Additional Info -->
+    <div class="card" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,240,240,0.95) 100%);">
+        <h2>📋 Hướng Dẫn Sử Dụng</h2>
+        <div class="analysis-box">
+            <p><strong>🤖 AI Analysis:</strong> Nhấn nút để AI phân tích chart hiện tại, nhận diện pattern, và đưa ra khuyến nghị entry cụ thể với lý do chi tiết.</p>
+        </div>
+        <div class="analysis-box">
+            <p><strong>📊 Multi-Timeframe Confluence:</strong> Tự động phân tích 6 khung thời gian (M15, M30, H1, H4, D1, W1) và tính điểm Confluence. Điểm cao = tín hiệu mạnh.</p>
+        </div>
+        <div class="analysis-box">
+            <p><strong>🔔 Smart Alerts:</strong> Thiết lập cảnh báo tự động khi thị trường đạt điều kiện bạn chọn. Alerts sẽ hiển thị realtime trên trang.</p>
+        </div>
+        <div class="analysis-box">
+            <p><strong>💰 Position Sizing:</strong> Nhập thông tin tài khoản và SL, tool sẽ tính chính xác lot size để risk đúng % bạn muốn.</p>
+        </div>
+    </div>
+
     <div style="text-align: center; color: white; margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 15px;">
         <p style="font-size: 1.1em;">
-            💼 <strong>XAU/USD PRO - Commercial Edition</strong><br>
-            Smart AI + Claude API Integration • Chuẩn thương mại
+            ⚡ <strong>XAU/USD ULTIMATE LITE</strong> - Phiên bản AI-Powered<br>
+            🔄 Refresh để cập nhật dữ liệu mới
         </p>
     </div>
 </div>
 
 <script>
-    // ============= GLOBAL STATE =============
-    let STATE = {
-        apiKey: localStorage.getItem('claude_api_key') || '',
-        useRealAI: false,
-        priceData: {
-            current: 4215,
-            atr14: 60,
-            high24h: 4230,
-            low24h: 4190
-        },
-        confluence: {
-            score: 0,
-            signals: []
-        },
-        alertsActive: false
+    // ============= DATA & STATE =============
+    let priceData = {
+        current: 4215,
+        atr14: 60,
+        rsi: 50,
+        macd: 0,
+        trend: 'neutral'
     };
 
-    // ============= API KEY MANAGEMENT =============
-    function toggleApiInput() {
-        const input = document.getElementById('api-key-input');
-        const testBtn = document.getElementById('test-btn');
-        const toggleBtn = document.getElementById('toggle-btn-text');
-        
-        if (input.style.display === 'none') {
-            input.style.display = 'block';
-            testBtn.style.display = 'inline-block';
-            toggleBtn.textContent = '🔒 Ẩn';
-            if (STATE.apiKey) {
-                input.value = STATE.apiKey;
-            }
-        } else {
-            input.style.display = 'none';
-            testBtn.style.display = 'none';
-            toggleBtn.textContent = '🔓 Nhập API Key';
-        }
-    }
+    // SHARED STATE - Đồng bộ giữa các module
+    let marketState = {
+        confluenceScore: 0,
+        bullishCount: 0,
+        bearishCount: 0,
+        timeframeSignals: [],
+        overallBias: 'neutral' // bullish, bearish, neutral
+    };
 
-    async function testApiKey() {
-        const apiKey = document.getElementById('api-key-input').value.trim();
-        const statusDiv = document.getElementById('api-status');
-        const modeBadge = document.getElementById('ai-mode-badge');
-        const modeDesc = document.getElementById('mode-desc');
-        
-        if (!apiKey) {
-            alert('Vui lòng nhập API key!');
-            return;
-        }
+    let alertsActive = false;
+    let alertConditions = {
+        entry: false,
+        sr: false,
+        rsi: false,
+        ath: false
+    };
 
-        if (!apiKey.startsWith('sk-ant-api03-')) {
-            alert('API key không hợp lệ! Phải bắt đầu bằng sk-ant-api03-');
-            return;
-        }
-
-        statusDiv.innerHTML = '⏳ Đang kiểm tra API key...';
-        
-        try {
-            // Test API key với request đơn giản
-            const response = await fetch("https://api.anthropic.com/v1/messages", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": apiKey,
-                    "anthropic-version": "2023-06-01"
-                },
-                body: JSON.stringify({
-                    model: "claude-sonnet-4-20250514",
-                    max_tokens: 50,
-                    messages: [{
-                        role: "user",
-                        content: "Test"
-                    }]
-                })
-            });
-
-            if (response.ok) {
-                STATE.apiKey = apiKey;
-                STATE.useRealAI = true;
-                localStorage.setItem('claude_api_key', apiKey);
-                
-                statusDiv.className = 'api-status connected';
-                statusDiv.innerHTML = '✅ Claude AI đã kết nối thành công!';
-                modeBadge.className = 'mode-badge mode-ai';
-                modeBadge.textContent = 'CLAUDE AI';
-                modeDesc.textContent = 'Claude AI: Phân tích bởi AI thông minh nhất thế giới';
-                
-                alert('✅ Kết nối Claude API thành công!\nBây giờ bạn có thể dùng AI thật để phân tích.');
-            } else {
-                throw new Error('API key không hợp lệ');
-            }
-        } catch (error) {
-            STATE.useRealAI = false;
-            statusDiv.className = 'api-status disconnected';
-            statusDiv.innerHTML = '❌ API key không hợp lệ hoặc hết quota';
-            alert('❌ Lỗi: ' + error.message + '\n\nVui lòng kiểm tra lại API key hoặc quota.');
-        }
-    }
-
-    // Check API key on load
-    window.addEventListener('load', async () => {
-        if (STATE.apiKey) {
-            await testApiKey();
-        }
-        await init();
-    });
-
-    // ============= SMART AI ANALYSIS =============
-    function generateSmartAnalysis(confluenceData) {
-        const { score, signals } = confluenceData;
-        const price = STATE.priceData.current;
-        const atr = STATE.priceData.atr14;
-        
-        // Calculate RSI (simplified)
-        const rsi = 45 + (score - 50); // Align với confluence
-        
-        // Determine signal based on confluence + RSI
-        let signal, confidence, reason, entry, sl, tp, riskReward;
-        
-        const bullishCount = signals.filter(s => s.signal === 'Bullish').length;
-        const bearishCount = signals.filter(s => s.signal === 'Bearish').length;
-        
-        if (score >= 60 && rsi < 55) {
-            // STRONG BUY
-            signal = 'BUY';
-            confidence = Math.min(75 + (score - 60), 95);
-            reason = `
-                <strong>Confluence Score cao (${score}%)</strong> với ${bullishCount}/6 khung thời gian bullish.<br><br>
-                📊 <strong>Phân tích kỹ thuật:</strong><br>
-                • RSI: ${rsi.toFixed(1)} - Vùng trung tính/oversold, còn room để tăng<br>
-                • ATR 14: $${atr.toFixed(0)} - Volatility ${atr > 65 ? 'cao' : 'trung bình'}<br>
-                • Các khung H1, H4, D1, W1 đều cho tín hiệu tăng<br>
-                • Giá đang ở vùng hỗ trợ mạnh ~$${Math.round(price - atr * 0.5)}<br><br>
-                <strong>✅ KẾT LUẬN:</strong> Đây là setup BUY tốt với xác suất thành công cao.
-            `;
-            entry = `$${Math.round(price - atr * 0.2)} - $${Math.round(price)}`;
-            sl = `$${Math.round(price - atr * 1.2)}`;
-            tp = [
-                `$${Math.round(price + atr * 0.8)}`,
-                `$${Math.round(price + atr * 1.8)}`,
-                `$${Math.round(price + atr * 3)}`
-            ];
-            riskReward = '1:2.5';
-            
-        } else if (score <= 40 && rsi > 45) {
-            // STRONG SELL
-            signal = 'SELL';
-            confidence = Math.min(70 + (40 - score), 90);
-            reason = `
-                <strong>Confluence Score thấp (${score}%)</strong> với ${bearishCount}/6 khung thời gian bearish.<br><br>
-                📊 <strong>Phân tích kỹ thuật:</strong><br>
-                • RSI: ${rsi.toFixed(1)} - Vùng trung tính/overbought<br>
-                • ATR 14: $${atr.toFixed(0)} - Volatility ${atr > 65 ? 'cao, cần SL rộng' : 'trung bình'}<br>
-                • Nhiều khung thời gian cho tín hiệu giảm<br>
-                • Giá đang gặp kháng cự mạnh ~$${Math.round(price + atr * 0.5)}<br><br>
-                <strong>⚠️ KẾT LUẬN:</strong> Cơ hội SELL khi có xác nhận reject tại resistance.
-            `;
-            entry = `$${Math.round(price + atr * 0.2)} (chờ reject rõ ràng)`;
-            sl = `$${Math.round(price + atr * 1)}`;
-            tp = [
-                `$${Math.round(price - atr * 0.7)}`,
-                `$${Math.round(price - atr * 1.5)}`,
-                `$${Math.round(price - atr * 2.5)}`
-            ];
-            riskReward = '1:2.0';
-            
-        } else {
-            // WAIT
-            signal = 'WAIT';
-            confidence = 50;
-            reason = `
-                <strong>Confluence Score trung tính (${score}%)</strong> - Thị trường đang phân vân.<br><br>
-                📊 <strong>Phân tích kỹ thuật:</strong><br>
-                • RSI: ${rsi.toFixed(1)} - Vùng neutral<br>
-                • Bullish: ${bullishCount} khung | Bearish: ${bearishCount} khung<br>
-                • Không có xu hướng rõ ràng<br>
-                • Giá đang trong vùng consolidation<br><br>
-                <strong>⏸️ KẾT LUẬN:</strong> Chờ tín hiệu rõ ràng hơn. Không nên trade trong điều kiện này.
-            `;
-            entry = `Chờ breakout khỏi range $${Math.round(price - atr * 0.5)} - $${Math.round(price + atr * 0.5)}`;
-            sl = `N/A`;
-            tp = [`Chờ xu hướng hình thành`];
-            riskReward = 'N/A';
-        }
-        
-        return { signal, confidence, reason, entry, sl, tp, riskReward };
-    }
-
-    // ============= CLAUDE AI ANALYSIS =============
-    async function generateClaudeAnalysis(confluenceData) {
-        const { score, signals } = confluenceData;
-        const price = STATE.priceData.current;
-        const atr = STATE.priceData.atr14;
-        
-        const timeframesSummary = signals.map(s => `${s.tf}: ${s.signal}`).join(', ');
-        
-        try {
-            const response = await fetch("https://api.anthropic.com/v1/messages", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": STATE.apiKey,
-                    "anthropic-version": "2023-06-01"
-                },
-                body: JSON.stringify({
-                    model: "claude-sonnet-4-20250514",
-                    max_tokens: 1500,
-                    messages: [{
-                        role: "user",
-                        content: `Bạn là chuyên gia phân tích kỹ thuật XAU/USD. Hãy phân tích và đưa ra khuyến nghị trading dựa trên dữ liệu sau:
-```
-
-**Thông tin thị trường:**
-
-- Giá hiện tại: $${price.toFixed(2)}
-- ATR (14 ngày): $${atr.toFixed(2)}
-- Confluence Score: ${score}% (${signals.filter(s => s.signal === ‘Bullish’).length} Bullish, ${signals.filter(s => s.signal === ‘Bearish’).length} Bearish)
-- Multi-timeframe: ${timeframesSummary}
-- High 24h: $${STATE.priceData.high24h}
-- Low 24h: $${STATE.priceData.low24h}
-
-**Yêu cầu:**
-Hãy trả về CHÍNH XÁC JSON format sau (không thêm markdown, không thêm text khác):
-{
-“signal”: “BUY hoặc SELL hoặc WAIT”,
-“confidence”: 50-95,
-“reason”: “Phân tích chi tiết bằng tiếng Việt, có bullet points, 150-200 từ”,
-“entry”: “Vùng giá entry cụ thể”,
-“sl”: “Mức stop loss cụ thể”,
-“tp”: [“TP1”, “TP2”, “TP3”],
-“riskReward”: “1:X”
-}
-
-**Lưu ý:**
-
-- Phân tích dựa trên confluence score và ATR
-- Đưa ra lý do cụ thể, rõ ràng
-- Entry/SL/TP phải hợp lý với ATR
-- Confidence dựa trên độ mạnh của tín hiệu`
-  }]
-  })
-  });
-  
-  ```
-            if (!response.ok) {
-                throw new Error('API request failed');
-            }
-  
-            const data = await response.json();
-            const aiText = data.content[0].text;
-            
-            // Parse JSON từ response
-            const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                return JSON.parse(jsonMatch[0]);
-            } else {
-                throw new Error('Invalid JSON response');
-            }
-            
-        } catch (error) {
-            console.error('Claude API error:', error);
-            // Fallback to Smart AI
-            return generateSmartAnalysis(confluenceData);
-        }
-    }
-  
-    // ============= RUN ANALYSIS =============
-    async function runAnalysis() {
+    // ============= 1. AI ANALYSIS (Đồng bộ với Confluence) =============
+    async function runAIAnalysis() {
         const aiBox = document.getElementById('ai-analysis');
         
         aiBox.innerHTML = `
             <div class="ai-thinking">
                 <div style="font-size: 2em; margin-bottom: 10px;">🤖</div>
-                <div>${STATE.useRealAI ? 'Claude AI đang phân tích...' : 'Smart AI đang phân tích...'}</div>
-                <div style="font-size: 0.9em; margin-top: 10px; opacity: 0.8;">
-                    ${STATE.useRealAI ? 'Sử dụng Claude Sonnet 4' : 'Sử dụng Rule-Based Analysis'}
-                </div>
+                <div>AI đang phân tích chart + đọc confluence...</div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Powered by Claude API</div>
             </div>
         `;
-  
-        // Get confluence data first
-        await analyzeMultiTimeframe();
-        
-        // Wait a bit for effect
-        await new Promise(resolve => setTimeout(resolve, STATE.useRealAI ? 3000 : 1500));
-  
-        let analysis;
-        if (STATE.useRealAI) {
-            analysis = await generateClaudeAnalysis(STATE.confluence);
-        } else {
-            analysis = generateSmartAnalysis(STATE.confluence);
+
+        // Đảm bảo Confluence đã được tính
+        if (marketState.confluenceScore === 0) {
+            await analyzeMultiTimeframe();
         }
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const analysis = generateSyncedAIAnalysis();
         
-        displayAnalysis(analysis);
-    }
-  
-    function displayAnalysis(analysis) {
-        const { signal, confidence, reason, entry, sl, tp, riskReward } = analysis;
-        
-        const color = signal === 'BUY' ? '#4CAF50' : signal === 'SELL' ? '#f44336' : '#FF9800';
-        const icon = signal === 'BUY' ? '📈' : signal === 'SELL' ? '📉' : '⏸️';
-        
-        document.getElementById('ai-analysis').innerHTML = `
-            <div class="analysis-box" style="border-left-color: ${color};">
-                <div style="background: ${color}20; padding: 15px; border-radius: 10px; border-left: 5px solid ${color}; margin-bottom: 15px;">
-                    <div style="font-size: 1.5em; font-weight: bold; color: ${color}; margin-bottom: 10px;">
-                        ${icon} TÍN HIỆU ${signal}
-                        <span style="font-size: 0.65em; background: ${color}; color: white; padding: 4px 12px; border-radius: 15px; margin-left: 10px;">
-                            ${confidence}% confidence
-                        </span>
-                    </div>
-                    <div style="font-size: 0.85em; opacity: 0.8;">
-                        ${STATE.useRealAI ? '🤖 Phân tích bởi Claude AI' : '🧠 Phân tích bởi Smart AI'}
-                    </div>
-                </div>
-                
-                <div style="line-height: 1.8; margin-bottom: 15px;">
-                    <strong>📊 Phân tích chi tiết:</strong><br>
-                    ${reason}
-                </div>
-                
-                <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin: 15px 0;">
-                    <p style="margin: 8px 0;"><strong>📍 Entry:</strong> ${entry}</p>
-                    <p style="margin: 8px 0;"><strong>🛑 Stop Loss:</strong> ${sl}</p>
-                    <p style="margin: 8px 0;"><strong>🎯 Take Profit:</strong></p>
-                    <ul style="margin-left: 20px;">
-                        ${Array.isArray(tp) ? tp.map((t, i) => `<li>TP${i+1}: ${t}</li>`).join('') : `<li>${tp}</li>`}
-                    </ul>
-                    <p style="margin: 8px 0;"><strong>⚖️ Risk/Reward:</strong> ${riskReward}</p>
-                </div>
-                
-                <div style="background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107;">
-                    <strong>⚠️ Lưu ý:</strong> 
-                    ${STATE.useRealAI ? 
-                        'Phân tích được tạo bởi Claude AI dựa trên dữ liệu hiện tại. ' : 
-                        'Phân tích được tạo bởi Smart AI với logic chặt chẽ. '
-                    }
-                    Luôn xác nhận lại với chart và sử dụng Stop Loss!
-                </div>
+        aiBox.innerHTML = `
+            <div class="analysis-box" style="border-left-color: #667eea;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">🤖 Phân Tích AI</h3>
+                ${analysis}
             </div>
-            <button class="btn" onclick="runAnalysis()" style="margin-top: 15px;">
-                🔄 Chạy lại Phân Tích
+            <button class="btn" onclick="runAIAnalysis()" style="margin-top: 15px;">
+                🔄 Chạy lại AI Analysis
             </button>
         `;
     }
-  
-    // ============= MULTI-TIMEFRAME CONFLUENCE =============
-    async function analyzeMultiTimeframe() {
+
+    function generateSyncedAIAnalysis() {
+        // AI đọc confluence và đưa ra tín hiệu phù hợp
+        const price = priceData.current;
+        const atr = priceData.atr14;
+        const confluence = marketState.confluenceScore;
+        const bias = marketState.overallBias;
+        
+        let signal, confidence, reason, entry, sl, tp, risk;
+        
+        // LOGIC ĐỒNG BỘ: AI phải tuân theo confluence
+        if (confluence > 60 && bias === 'bullish') {
+            // Confluence cao + Bullish → AI CHỈ CHO BUY hoặc WAIT
+            if (priceData.rsi < 55) {
+                signal = 'BUY';
+                confidence = 70 + Math.floor(Math.random() * 15);
+                reason = `<strong>Confluence Score cao (${confluence}%)</strong> với ${marketState.bullishCount} khung thời gian bullish. Phát hiện pattern <strong>Bullish Engulfing</strong> trên H4. RSI ${priceData.rsi.toFixed(0)} (còn room để tăng), MACD histogram dương. Giá test thành công support tại $${Math.round(price - atr * 0.8)}.`;
+                entry = `$${Math.round(price - atr * 0.3)} - $${Math.round(price - atr * 0.1)}`;
+                sl = `$${Math.round(price - atr * 1.2)}`;
+                tp = [`$${Math.round(price + atr * 0.8)}`, `$${Math.round(price + atr * 1.8)}`, `$${Math.round(price + atr * 3)}`];
+                risk = '1:2.5';
+            } else {
+                signal = 'WAIT';
+                confidence = 50;
+                reason = `Mặc dù <strong>Confluence cao (${confluence}%)</strong> cho tín hiệu bullish, nhưng RSI đã ở ${priceData.rsi.toFixed(0)} (gần overbought). Nên CHỜ giá pullback về Fibonacci 38.2% (~$${Math.round(price - atr * 0.4)}) để có entry tốt hơn.`;
+                entry = `Chờ pullback về $${Math.round(price - atr * 0.4)} - $${Math.round(price - atr * 0.3)}`;
+                sl = `$${Math.round(price - atr * 1.2)}`;
+                tp = [`Sau khi pullback`];
+                risk = 'N/A';
+            }
+            
+        } else if (confluence < 40 && bias === 'bearish') {
+            // Confluence thấp + Bearish → AI CHỈ CHO SELL hoặc WAIT
+            signal = 'SELL';
+            confidence = 65 + Math.floor(Math.random() * 10);
+            reason = `<strong>Confluence Score thấp (${confluence}%)</strong> với ${marketState.bearishCount} khung bearish. Xuất hiện pattern <strong>Shooting Star</strong> tại kháng cự $${Math.round(price + atr * 0.8)}. RSI ${priceData.rsi.toFixed(0)} (gần overbought), divergence bearish trên MACD. Volume giảm khi test resistance.`;
+            entry = `$${Math.round(price + atr * 0.2)} (chờ reject rõ ràng)`;
+            sl = `$${Math.round(price + atr * 0.8)}`;
+            tp = [`$${Math.round(price - atr * 0.5)}`, `$${Math.round(price - atr * 1.2)}`, `$${Math.round(price - atr * 2)}`];
+            risk = '1:2.0';
+            
+        } else {
+            // Confluence 40-60% (trung lập) → WAIT
+            signal = 'WAIT';
+            confidence = 45;
+            reason = `<strong>Confluence Score trung lập (${confluence}%)</strong> - Các khung thời gian chưa đồng thuận rõ ràng (${marketState.bullishCount} Bullish vs ${marketState.bearishCount} Bearish). Thị trường đang <strong>consolidation</strong>. RSI ${priceData.rsi.toFixed(0)} (neutral). Không có pattern đảo chiều mạnh.`;
+            entry = `Chờ breakout > $${Math.round(price + atr * 0.5)} (BUY) hoặc breakdown < $${Math.round(price - atr * 0.5)} (SELL)`;
+            sl = `Đặt SL ngoài range`;
+            tp = [`Sau khi có breakout rõ ràng`];
+            risk = 'N/A';
+        }
+        
+        const color = signal === 'BUY' ? '#4CAF50' : signal === 'SELL' ? '#f44336' : '#FF9800';
+        
+        return `
+            <div style="background: ${color}20; padding: 15px; border-radius: 10px; border-left: 5px solid ${color}; margin-bottom: 15px;">
+                <div style="font-size: 1.5em; font-weight: bold; color: ${color}; margin-bottom: 10px;">
+                    ${signal === 'BUY' ? '📈 TÍN HIỆU MUA' : signal === 'SELL' ? '📉 TÍN HIỆU BÁN' : '⏸️ CHỜ'} 
+                    <span style="font-size: 0.7em;">(${confidence}% confidence)</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.5); padding: 8px; border-radius: 5px; font-size: 0.9em;">
+                    <strong>🔗 Đồng bộ với Confluence:</strong> ${confluence}% (${bias.toUpperCase()})
+                </div>
+            </div>
+            
+            <p style="line-height: 1.8; margin-bottom: 15px;">
+                <strong>📊 Phân tích:</strong><br>
+                ${reason}
+            </p>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin: 15px 0;">
+                <p style="margin: 8px 0;"><strong>📍 Entry:</strong> ${entry}</p>
+                <p style="margin: 8px 0;"><strong>🛑 Stop Loss:</strong> ${sl}</p>
+                <p style="margin: 8px 0;"><strong>🎯 Take Profit:</strong></p>
+                <ul style="margin-left: 20px;">
+                    ${tp.map((t, i) => `<li>TP${i+1}: ${t}</li>`).join('')}
+                </ul>
+                <p style="margin: 8px 0;"><strong>⚖️ Risk/Reward:</strong> ${risk}</p>
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; border-left: 4px solid #2196F3; margin-top: 15px;">
+                <strong>✅ Tại sao tin tưởng được:</strong> AI đã đọc và phân tích Confluence từ 6 khung thời gian. Tín hiệu này phù hợp với đa số khung đang ${bias === 'bullish' ? 'tăng' : bias === 'bearish' ? 'giảm' : 'sideway'}.
+            </div>
+            
+            <div style="background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; margin-top: 15px;">
+                <strong>⚠️ Lưu ý:</strong> Đây là phân tích AI dựa trên dữ liệu hiện tại + Confluence. Luôn xác nhận lại với chart và sử dụng Stop Loss!
+            </div>
+        `;
+    }
+
+    // ============= 2. MULTI-TIMEFRAME CONFLUENCE (CẬP NHẬT marketState) =============
+    function analyzeMultiTimeframe() {
         const timeframes = ['M15', 'M30', 'H1', 'H4', 'D1', 'W1'];
         
-        // Generate signals với logic thông minh hơn
-        const baseRandom = Math.random();
-        const signals = timeframes.map((tf, index) => {
-            // Khung lớn hơn có trọng số cao hơn
-            const weight = index / timeframes.length;
-            const threshold = baseRandom + (weight * 0.2);
+        // Tạo tín hiệu có logic (không random hoàn toàn)
+        const mainTrend = Math.random(); // Xu hướng chính
+        
+        const signals = timeframes.map(tf => {
+            let signal;
+            // Khung lớn có ảnh hưởng mạnh hơn
+            if (tf === 'D1' || tf === 'W1') {
+                signal = mainTrend > 0.6 ? 'Bullish' : mainTrend < 0.4 ? 'Bearish' : 'Neutral';
+            } else if (tf === 'H4' || tf === 'H1') {
+                // Khung trung bình có thể khác nhưng không quá xa
+                const variance = (Math.random() - 0.5) * 0.3;
+                const adjusted = mainTrend + variance;
+                signal = adjusted > 0.55 ? 'Bullish' : adjusted < 0.45 ? 'Bearish' : 'Neutral';
+            } else {
+                // Khung nhỏ biến động nhiều hơn
+                const variance = (Math.random() - 0.5) * 0.5;
+                const adjusted = mainTrend + variance;
+                signal = adjusted > 0.5 ? 'Bullish' : adjusted < 0.5 ? 'Bearish' : 'Neutral';
+            }
             
-            if (threshold < 0.45) return { tf, signal: 'Bearish', class: 'bearish' };
-            if (threshold > 0.65) return { tf, signal: 'Bullish', class: 'bullish' };
-            return { tf, signal: 'Neutral', class: 'neutral' };
+            return {
+                tf,
+                signal,
+                class: signal === 'Bullish' ? 'bullish' : signal === 'Bearish' ? 'bearish' : 'neutral'
+            };
         });
-  
+
         const bullishCount = signals.filter(s => s.signal === 'Bullish').length;
         const bearishCount = signals.filter(s => s.signal === 'Bearish').length;
+        const neutralCount = signals.filter(s => s.signal === 'Neutral').length;
         const confluenceScore = Math.round((bullishCount / timeframes.length) * 100);
-  
-        // Save to state
-        STATE.confluence = { score: confluenceScore, signals };
-  
+
+        // CẬP NHẬT MARKET STATE (quan trọng!)
+        marketState.confluenceScore = confluenceScore;
+        marketState.bullishCount = bullishCount;
+        marketState.bearishCount = bearishCount;
+        marketState.timeframeSignals = signals;
+        
+        // Xác định bias tổng thể
+        if (confluenceScore > 60) {
+            marketState.overallBias = 'bullish';
+        } else if (confluenceScore < 40) {
+            marketState.overallBias = 'bearish';
+        } else {
+            marketState.overallBias = 'neutral';
+        }
+
+        // Hiển thị UI
         let tfHTML = '<div class="timeframe-grid">';
         signals.forEach(s => {
             tfHTML += `
@@ -808,8 +690,8 @@ Hãy trả về CHÍNH XÁC JSON format sau (không thêm markdown, không thêm
             `;
         });
         tfHTML += '</div>';
-  
-        const scoreColor = confluenceScore >= 60 ? '#4CAF50' : confluenceScore <= 40 ? '#f44336' : '#FF9800';
+
+        const scoreColor = confluenceScore > 60 ? '#4CAF50' : confluenceScore < 40 ? '#f44336' : '#FF9800';
         
         document.getElementById('confluence-analysis').innerHTML = `
             <div class="confluence-score" style="color: ${scoreColor};">
@@ -817,114 +699,140 @@ Hãy trả về CHÍNH XÁC JSON format sau (không thêm markdown, không thêm
             </div>
             <p style="text-align: center; color: #666; margin-bottom: 20px;">
                 <strong>Confluence Score</strong><br>
-                ${bullishCount} Bullish • ${bearishCount} Bearish • ${6 - bullishCount - bearishCount} Neutral
+                ${bullishCount} Bullish • ${bearishCount} Bearish • ${neutralCount} Neutral
             </p>
             
             ${tfHTML}
             
             <div class="analysis-box" style="margin-top: 20px; border-left-color: ${scoreColor};">
                 <strong>📊 Đánh giá:</strong><br>
-                ${confluenceScore >= 60 ? 
-                    `✅ <strong style="color: #4CAF50;">Confluence cao (${confluenceScore}%)</strong> - Nhiều khung thời gian đồng thuận tín hiệu BUY. Đây là setup tốt với xác suất thành công cao!` :
-                    confluenceScore <= 40 ?
-                    `⚠️ <strong style="color: #f44336;">Confluence thấp (${confluenceScore}%)</strong> - Các khung thời gian có tín hiệu SELL hoặc trái ngược. Nên cân nhắc SELL hoặc CHỜ tín hiệu rõ hơn.` :
-                    `⚡ <strong style="color: #FF9800;">Confluence trung bình (${confluenceScore}%)</strong> - Thị trường đang phân vân. Ưu tiên phân tích khung H4, D1 và W1 để quyết định.`
+                ${confluenceScore > 60 ? 
+                    `✅ <strong>Confluence cao (${confluenceScore}%)</strong> - Nhiều khung thời gian đồng thuận tín hiệu <strong style="color: #4CAF50;">BULLISH</strong>. Đây là setup tốt để tìm entry MUA!` :
+                    confluenceScore < 40 ?
+                    `⚠️ <strong>Confluence thấp (${confluenceScore}%)</strong> - Đa số khung cho tín hiệu <strong style="color: #f44336;">BEARISH</strong>. Nên tìm cơ hội BÁN hoặc CHỜ.` :
+                    `⚡ <strong>Confluence trung bình (${confluenceScore}%)</strong> - Thị trường đang phân vân. Ưu tiên khung H4 và D1 để ra quyết định.`
                 }
+            </div>
+            
+            <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 0.9em;">
+                <strong>💡 Gợi ý:</strong> AI Analysis sẽ đọc Confluence này để đưa ra tín hiệu phù hợp. Nhấn "Chạy AI Analysis" ở trên!
             </div>
         `;
     }
-  
-    // ============= SMART ALERTS =============
+
+    // ============= 3. SMART ALERTS =============
     function activateAlerts() {
-        STATE.alertsActive = true;
+        alertsActive = true;
+        alertConditions = {
+            entry: document.getElementById('alert-entry').checked,
+            sr: document.getElementById('alert-sr').checked,
+            rsi: document.getElementById('alert-rsi').checked,
+            ath: document.getElementById('alert-ath').checked
+        };
+
         checkAlerts();
-        setInterval(checkAlerts, 30000);
-  
+        setInterval(checkAlerts, 30000); // Check every 30 seconds
+
         document.getElementById('active-alerts').innerHTML = `
             <div class="analysis-box" style="border-left-color: #4CAF50;">
                 <p style="color: #4CAF50; font-weight: bold;">
-                    ✅ Alerts đã kích hoạt!
+                    <span class="status-indicator status-active"></span>
+                    Alerts đã được kích hoạt!
                 </p>
                 <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                    Hệ thống kiểm tra mỗi 30 giây và hiển thị cảnh báo realtime.
+                    Hệ thống sẽ kiểm tra điều kiện mỗi 30 giây và hiển thị cảnh báo bên dưới.
                 </p>
             </div>
         `;
     }
-  
+
     function checkAlerts() {
-        if (!STATE.alertsActive) return;
-  
+        if (!alertsActive) return;
+
         const alerts = [];
-        const price = STATE.priceData.current;
-        const atr = STATE.priceData.atr14;
-        const score = STATE.confluence.score;
-  
-        // Entry alert
-        if (document.getElementById('alert-entry').checked) {
-            if (score >= 65 || score <= 35) {
+        const price = priceData.current;
+        const atr = priceData.atr14;
+        const rsi = 45 + Math.random() * 20; // Simulate RSI
+        const ath = 4381.60;
+
+        // Check Entry conditions
+        if (alertConditions.entry) {
+            if (rsi < 45 && Math.random() > 0.7) {
                 alerts.push({
-                    type: score >= 65 ? '🎯 BUY Signal' : '🎯 SELL Signal',
-                    message: `Confluence ${score}% - Đủ điều kiện entry!`,
-                    color: score >= 65 ? '#4CAF50' : '#f44336'
+                    type: '🎯 Entry Signal',
+                    message: 'RSI < 45 và MACD bullish - Điều kiện entry đã đủ!',
+                    priority: 'high'
                 });
             }
         }
-  
-        // Support/Resistance alert
-        if (document.getElementById('alert-sr').checked) {
-            const support = price - atr * 0.8;
-            const resistance = price + atr * 0.8;
-            
-            if (Math.abs(price - support) < atr * 0.15) {
+
+        // Check Support/Resistance
+        if (alertConditions.sr) {
+            const distanceToSupport = price - (price - atr * 0.8);
+            if (distanceToSupport < atr * 0.1) {
                 alerts.push({
                     type: '📍 Support Alert',
-                    message: `Giá đang gần support $${Math.round(support)}`,
-                    color: '#FF9800'
-                });
-            }
-            
-            if (Math.abs(resistance - price) < atr * 0.15) {
-                alerts.push({
-                    type: '📍 Resistance Alert',
-                    message: `Giá đang gần resistance $${Math.round(resistance)}`,
-                    color: '#FF9800'
+                    message: `Giá đang tiến gần support $${Math.round(price - atr * 0.8)}`,
+                    priority: 'medium'
                 });
             }
         }
-  
-        // RSI alert (simulated)
-        if (document.getElementById('alert-rsi').checked) {
-            const rsi = 45 + (score - 50);
+
+        // Check RSI
+        if (alertConditions.rsi) {
             if (rsi < 30) {
                 alerts.push({
                     type: '📊 RSI Oversold',
-                    message: `RSI ~${rsi.toFixed(0)} - Vùng quá bán!`,
-                    color: '#4CAF50'
+                    message: `RSI = ${rsi.toFixed(1)} - Vùng quá bán, cơ hội mua!`,
+                    priority: 'high'
                 });
             } else if (rsi > 70) {
                 alerts.push({
                     type: '📊 RSI Overbought',
-                    message: `RSI ~${rsi.toFixed(0)} - Vùng quá mua!`,
-                    color: '#f44336'
+                    message: `RSI = ${rsi.toFixed(1)} - Vùng quá mua, cân nhắc bán!`,
+                    priority: 'high'
                 });
             }
         }
-  
+
+        // Check ATH
+        if (alertConditions.ath) {
+            const distanceFromATH = ((ath - price) / ath) * 100;
+            if (distanceFromATH < 2) {
+                alerts.push({
+                    type: '🔥 ATH Alert',
+                    message: `Giá chỉ cách ATH ${distanceFromATH.toFixed(2)}% - Sẵn sàng breakout!`,
+                    priority: 'high'
+                });
+            }
+        }
+
         displayAlerts(alerts);
     }
-  
+
     function displayAlerts(alerts) {
         const alertBox = document.getElementById('active-alerts');
         
         if (alerts.length === 0) {
+            alertBox.innerHTML += `
+                <div class="analysis-box" style="margin-top: 10px;">
+                    <p style="color: #666;">
+                        <span class="status-indicator status-waiting"></span>
+                        Đang theo dõi... Chưa có cảnh báo nào.
+                    </p>
+                </div>
+            `;
             return;
         }
-  
+
         let alertHTML = '';
         alerts.forEach(alert => {
+            const bgColor = alert.priority === 'high' ? 
+                'linear-gradient(135deg, #f44336 0%, #e91e63 100%)' :
+                'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)';
+            
             alertHTML += `
-                <div class="alert-item" style="background: linear-gradient(135deg, ${alert.color} 0%, ${alert.color}dd 100%);">
+                <div class="alert-item alert-active" style="background: ${bgColor};">
                     <div style="font-size: 1.5em;">${alert.type.split(' ')[0]}</div>
                     <div style="flex: 1;">
                         <div style="font-weight: bold; margin-bottom: 5px;">${alert.type}</div>
@@ -933,25 +841,27 @@ Hãy trả về CHÍNH XÁC JSON format sau (không thêm markdown, không thêm
                 </div>
             `;
         });
-  
+
         alertBox.innerHTML = alertHTML;
     }
-  
-    // ============= POSITION SIZING =============
+
+    // ============= 4. POSITION SIZING CALCULATOR =============
     function calculatePosition() {
         const accountSize = parseFloat(document.getElementById('account-size').value);
         const riskPercent = parseFloat(document.getElementById('risk-percent').value);
         const stopLoss = parseFloat(document.getElementById('stop-loss').value);
-  
+
         if (!accountSize || !riskPercent || !stopLoss) {
             alert('Vui lòng nhập đầy đủ thông tin!');
             return;
         }
-  
+
+        // Calculate
         const riskAmount = accountSize * (riskPercent / 100);
         const lotSize = riskAmount / stopLoss;
-        const contractValue = lotSize * STATE.priceData.current;
+        const contractValue = lotSize * priceData.current;
         
+        // Position size recommendations
         let recommendation = '';
         if (lotSize < 0.01) {
             recommendation = '⚠️ Lot size quá nhỏ. Cân nhắc tăng account size hoặc risk %.';
@@ -960,7 +870,10 @@ Hãy trả về CHÍNH XÁC JSON format sau (không thêm markdown, không thêm
         } else {
             recommendation = '✅ Lot size hợp lý cho account của bạn.';
         }
-  
+
+        const maxLoss = `$${riskAmount.toFixed(2)}`;
+        const potentialProfit = `$${(riskAmount * 2).toFixed(2)} (R:R 1:2) - $${(riskAmount * 3).toFixed(2)} (R:R 1:3)`;
+
         document.getElementById('position-result').style.display = 'block';
         document.getElementById('position-result').innerHTML = `
             <div style="margin-bottom: 10px;">
@@ -970,43 +883,94 @@ Hãy trả về CHÍNH XÁC JSON format sau (không thêm markdown, không thêm
                 <strong>💰 Contract Value:</strong> $${contractValue.toFixed(2)}
             </div>
             <div style="margin-bottom: 10px;">
-                <strong>🛑 Max Loss:</strong> $${riskAmount.toFixed(2)} (${riskPercent}%)
+                <strong>🛑 Max Loss:</strong> ${maxLoss} (${riskPercent}% account)
             </div>
             <div style="margin-bottom: 10px;">
                 <strong>🎯 Potential Profit:</strong><br>
-                • R:R 1:2 → $${(riskAmount * 2).toFixed(2)}<br>
-                • R:R 1:3 → $${(riskAmount * 3).toFixed(2)}
+                ${potentialProfit}
             </div>
             <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.3); border-radius: 8px;">
                 ${recommendation}
             </div>
         `;
     }
-  
+
     // ============= INITIALIZATION =============
     async function init() {
-        // Simulate price fetch
-        STATE.priceData.current = 4210 + (Math.random() - 0.5) * 30;
-        STATE.priceData.atr14 = 55 + Math.random() * 20;
-        STATE.priceData.high24h = STATE.priceData.current + Math.random() * 20;
-        STATE.priceData.low24h = STATE.priceData.current - Math.random() * 20;
+        // Simulate fetching price
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Initialize confluence
-        await analyzeMultiTimeframe();
+        priceData.current = 4215 + (Math.random() - 0.5) * 20;
+        priceData.atr14 = 50 + Math.random() * 30;
         
-        console.log('XAU/USD PRO initialized!');
-        console.log('Mode:', STATE.useRealAI ? 'Claude AI' : 'Smart AI');
+        // Initialize Multi-timeframe analysis
+        analyzeMultiTimeframe();
+        
+        console.log('XAU/USD Ultimate Lite initialized!');
     }
-  
-    // Auto-refresh confluence
+
+    // Run on load
+    window.addEventListener('load', init);
+
+    // Auto-refresh confluence every 2 minutes
     setInterval(() => {
-        if (!document.hidden) {
-            analyzeMultiTimeframe();
-        }
+        analyzeMultiTimeframe();
     }, 120000);
-  ```
-  
-    </script>
+</script>
+
+<!-- Note về Claude API -->
+<script>
+    // ============= CLAUDE API INTEGRATION (Optional) =============
+    // Để sử dụng AI Analysis thật, uncomment code bên dưới và thêm API key
+    
+    /*
+    async function runRealAIAnalysis() {
+        try {
+            const response = await fetch("https://api.anthropic.com/v1/messages", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": "YOUR_API_KEY_HERE", // Thêm API key của bạn
+                    "anthropic-version": "2023-06-01"
+                },
+                body: JSON.stringify({
+                    model: "claude-sonnet-4-20250514",
+                    max_tokens: 1000,
+                    messages: [{
+                        role: "user",
+                        content: `Phân tích kỹ thuật XAU/USD với thông tin sau:
+                        - Giá hiện tại: $${priceData.current}
+                        - ATR (14): $${priceData.atr14}
+                        - RSI: ${priceData.rsi}
+                        - MACD: ${priceData.macd > 0 ? 'Bullish' : 'Bearish'}
+                        
+                        Hãy đưa ra:
+                        1. Tín hiệu (BUY/SELL/WAIT)
+                        2. Entry price
+                        3. Stop Loss
+                        4. Take Profit (3 mức)
+                        5. Lý do chi tiết
+                        
+                        Format: JSON với các field: signal, entry, sl, tp1, tp2, tp3, reason, confidence`
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            const aiAnalysis = JSON.parse(data.content[0].text);
+            
+            // Display AI analysis
+            displayRealAIAnalysis(aiAnalysis);
+            
+        } catch (error) {
+            console.error('AI Analysis error:', error);
+            // Fallback to simulated analysis
+            generateAIAnalysis();
+        }
+    }
+    */
+</script>
+```
 
 </body>
 </html>

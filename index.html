@@ -540,53 +540,112 @@
     }
 
     function generateSyncedAIAnalysis() {
-        // AI đọc confluence và đưa ra tín hiệu phù hợp
+        // AI đọc INDICATORS THẬT + confluence
         const price = priceData.current;
         const atr = priceData.atr14;
+        const rsi = priceData.rsi; // ← THẬT!
+        const macdHist = priceData.macdHistogram; // ← THẬT!
+        const pattern = priceData.detectedPattern; // ← THẬT!
+        const trend = priceData.trend; // ← THẬT!
         const confluence = marketState.confluenceScore;
         const bias = marketState.overallBias;
         
         let signal, confidence, reason, entry, sl, tp, risk;
         
-        // LOGIC ĐỒNG BỘ: AI phải tuân theo confluence
+        // LOGIC ĐỒNG BỘ với INDICATORS THẬT
         if (confluence > 60 && bias === 'bullish') {
-            // Confluence cao + Bullish → AI CHỈ CHO BUY hoặc WAIT
-            if (priceData.rsi < 55) {
+            // Kiểm tra RSI và MACD THẬT
+            if (rsi < 55 && macdHist > 0) {
                 signal = 'BUY';
-                confidence = 70 + Math.floor(Math.random() * 15);
-                reason = `<strong>Confluence Score cao (${confluence}%)</strong> với ${marketState.bullishCount} khung thời gian bullish. Phát hiện pattern <strong>Bullish Engulfing</strong> trên H4. RSI ${priceData.rsi.toFixed(0)} (còn room để tăng), MACD histogram dương. Giá test thành công support tại $${Math.round(price - atr * 0.8)}.`;
+                confidence = 70 + Math.floor((60 - rsi) * 0.5); // RSI thấp hơn = confidence cao hơn
+                
+                const patternText = pattern ? 
+                    `Phát hiện pattern <strong>${pattern.name}</strong> (${pattern.signal}, ${pattern.strength} strength).` :
+                    'Không có pattern nến đặc biệt.';
+                
+                reason = `<strong>Confluence Score cao (${confluence}%)</strong> với ${marketState.bullishCount}/6 khung bullish.<br><br>
+                <strong>📊 Technical Indicators THẬT:</strong><br>
+                • <strong>RSI:</strong> ${rsi.toFixed(1)} (${rsi < 30 ? 'Oversold - CỰC TỐT' : rsi < 45 ? 'Gần oversold - TỐT' : 'Còn room để tăng'})<br>
+                • <strong>MACD Histogram:</strong> ${macdHist.toFixed(2)} (${macdHist > 0 ? 'Bullish ✓' : 'Bearish ✗'})<br>
+                • <strong>ATR (14):</strong> $${atr.toFixed(2)} (Volatility ${atr > 70 ? 'cao' : atr > 50 ? 'trung bình' : 'thấp'})<br>
+                • <strong>Trend:</strong> ${trend === 'uptrend' ? 'Uptrend ✓' : trend === 'downtrend' ? 'Downtrend ✗' : 'Sideways'}<br><br>
+                <strong>🕯️ Pattern Analysis:</strong><br>
+                ${patternText}<br><br>
+                <strong>🎯 Kết luận:</strong> Tín hiệu BUY mạnh dựa trên sự kết hợp của Confluence cao + RSI chưa overbought + MACD bullish.`;
+                
                 entry = `$${Math.round(price - atr * 0.3)} - $${Math.round(price - atr * 0.1)}`;
                 sl = `$${Math.round(price - atr * 1.2)}`;
                 tp = [`$${Math.round(price + atr * 0.8)}`, `$${Math.round(price + atr * 1.8)}`, `$${Math.round(price + atr * 3)}`];
                 risk = '1:2.5';
-            } else {
+                
+            } else if (rsi >= 55 && rsi < 70) {
                 signal = 'WAIT';
-                confidence = 50;
-                reason = `Mặc dù <strong>Confluence cao (${confluence}%)</strong> cho tín hiệu bullish, nhưng RSI đã ở ${priceData.rsi.toFixed(0)} (gần overbought). Nên CHỜ giá pullback về Fibonacci 38.2% (~$${Math.round(price - atr * 0.4)}) để có entry tốt hơn.`;
+                confidence = 55;
+                reason = `Mặc dù <strong>Confluence cao (${confluence}%)</strong>, nhưng:<br><br>
+                <strong>📊 Indicators cho thấy:</strong><br>
+                • <strong>RSI:</strong> ${rsi.toFixed(1)} (đã tăng khá cao, gần overbought)<br>
+                • <strong>MACD:</strong> ${macdHist > 0 ? 'Vẫn bullish nhưng có thể sắp chững lại' : 'Đã chuyển bearish'}<br><br>
+                <strong>💡 Khuyến nghị:</strong> CHỜ giá pullback về Fibonacci 38.2% (~$${Math.round(price - atr * 0.4)}) để có entry an toàn hơn với R:R tốt hơn.`;
+                
                 entry = `Chờ pullback về $${Math.round(price - atr * 0.4)} - $${Math.round(price - atr * 0.3)}`;
                 sl = `$${Math.round(price - atr * 1.2)}`;
-                tp = [`Sau khi pullback`];
+                tp = [`Sau khi có pullback`];
+                risk = 'N/A';
+                
+            } else {
+                // RSI > 70 - Overbought
+                signal = 'WAIT';
+                confidence = 45;
+                reason = `⚠️ <strong>Cảnh báo:</strong> Mặc dù Confluence ${confluence}% (bullish):<br><br>
+                <strong>📊 RSI = ${rsi.toFixed(1)}</strong> - Đã OVERBOUGHT!<br>
+                • Nguy cơ điều chỉnh cao<br>
+                • MACD: ${macdHist.toFixed(2)}<br><br>
+                <strong>💡 Khuyến nghị:</strong> KHÔNG nên mua khi RSI quá cao. Chờ RSI về dưới 50 hoặc giá điều chỉnh mạnh.`;
+                
+                entry = `Chờ RSI < 50 hoặc giá về $${Math.round(price - atr * 0.6)}`;
+                sl = `N/A`;
+                tp = [`Chờ điều kiện tốt hơn`];
                 risk = 'N/A';
             }
             
         } else if (confluence < 40 && bias === 'bearish') {
-            // Confluence thấp + Bearish → AI CHỈ CHO SELL hoặc WAIT
+            // Bearish scenario với indicators thật
             signal = 'SELL';
-            confidence = 65 + Math.floor(Math.random() * 10);
-            reason = `<strong>Confluence Score thấp (${confluence}%)</strong> với ${marketState.bearishCount} khung bearish. Xuất hiện pattern <strong>Shooting Star</strong> tại kháng cự $${Math.round(price + atr * 0.8)}. RSI ${priceData.rsi.toFixed(0)} (gần overbought), divergence bearish trên MACD. Volume giảm khi test resistance.`;
+            confidence = 60 + Math.floor((rsi - 50) * 0.3);
+            
+            const patternText = pattern ? 
+                `Xuất hiện pattern <strong>${pattern.name}</strong> (${pattern.signal}).` :
+                'Không có pattern rõ ràng.';
+            
+            reason = `<strong>Confluence thấp (${confluence}%)</strong> - ${marketState.bearishCount}/6 khung bearish.<br><br>
+            <strong>📊 Technical Indicators:</strong><br>
+            • <strong>RSI:</strong> ${rsi.toFixed(1)} (${rsi > 70 ? 'Overbought - RẤT TỐT cho SELL' : rsi > 55 ? 'Cao - Tốt cho SELL' : 'Chưa cao lắm'})<br>
+            • <strong>MACD:</strong> ${macdHist.toFixed(2)} (${macdHist < 0 ? 'Bearish ✓' : 'Vẫn bullish - Cẩn thận'})<br>
+            • <strong>Trend:</strong> ${trend}<br><br>
+            ${patternText}<br><br>
+            <strong>🎯 Setup SELL</strong> khi giá test lại resistance và bị reject.`;
+            
             entry = `$${Math.round(price + atr * 0.2)} (chờ reject rõ ràng)`;
             sl = `$${Math.round(price + atr * 0.8)}`;
             tp = [`$${Math.round(price - atr * 0.5)}`, `$${Math.round(price - atr * 1.2)}`, `$${Math.round(price - atr * 2)}`];
             risk = '1:2.0';
             
         } else {
-            // Confluence 40-60% (trung lập) → WAIT
+            // Neutral - Chờ
             signal = 'WAIT';
-            confidence = 45;
-            reason = `<strong>Confluence Score trung lập (${confluence}%)</strong> - Các khung thời gian chưa đồng thuận rõ ràng (${marketState.bullishCount} Bullish vs ${marketState.bearishCount} Bearish). Thị trường đang <strong>consolidation</strong>. RSI ${priceData.rsi.toFixed(0)} (neutral). Không có pattern đảo chiều mạnh.`;
-            entry = `Chờ breakout > $${Math.round(price + atr * 0.5)} (BUY) hoặc breakdown < $${Math.round(price - atr * 0.5)} (SELL)`;
-            sl = `Đặt SL ngoài range`;
-            tp = [`Sau khi có breakout rõ ràng`];
+            confidence = 40 + Math.floor(Math.random() * 10);
+            
+            reason = `<strong>Confluence trung lập (${confluence}%)</strong> - Thị trường chưa rõ hướng.<br><br>
+            <strong>📊 Current Indicators:</strong><br>
+            • <strong>RSI:</strong> ${rsi.toFixed(1)} (Neutral zone)<br>
+            • <strong>MACD:</strong> ${macdHist.toFixed(2)} (${Math.abs(macdHist) < 2 ? 'Gần flat' : macdHist > 0 ? 'Nhẹ bullish' : 'Nhẹ bearish'})<br>
+            • <strong>Trend:</strong> ${trend === 'sideways' ? 'Consolidation' : trend}<br>
+            • <strong>Pattern:</strong> ${pattern ? pattern.name : 'Không có pattern mạnh'}<br><br>
+            <strong>💡 Khuyến nghị:</strong> CHỜ breakout rõ ràng hoặc confluence > 60% / < 40%.`;
+            
+            entry = `Breakout > $${Math.round(price + atr * 0.5)} (BUY) hoặc < $${Math.round(price - atr * 0.5)} (SELL)`;
+            sl = `Ngoài range`;
+            tp = [`Theo hướng breakout`];
             risk = 'N/A';
         }
         
@@ -598,13 +657,13 @@
                     ${signal === 'BUY' ? '📈 TÍN HIỆU MUA' : signal === 'SELL' ? '📉 TÍN HIỆU BÁN' : '⏸️ CHỜ'} 
                     <span style="font-size: 0.7em;">(${confidence}% confidence)</span>
                 </div>
-                <div style="background: rgba(255,255,255,0.5); padding: 8px; border-radius: 5px; font-size: 0.9em;">
-                    <strong>🔗 Đồng bộ với Confluence:</strong> ${confluence}% (${bias.toUpperCase()})
+                <div style="background: rgba(255,255,255,0.6); padding: 8px; border-radius: 5px; font-size: 0.9em; margin-top: 10px;">
+                    <strong>🔗 Dữ liệu:</strong> Confluence ${confluence}% + RSI ${rsi.toFixed(1)} + MACD ${macdHist > 0 ? 'Bullish' : 'Bearish'} + ${pattern ? pattern.name : 'No pattern'}
                 </div>
             </div>
             
             <p style="line-height: 1.8; margin-bottom: 15px;">
-                <strong>📊 Phân tích:</strong><br>
+                <strong>📊 Phân tích chi tiết:</strong><br>
                 ${reason}
             </p>
             
@@ -618,12 +677,18 @@
                 <p style="margin: 8px 0;"><strong>⚖️ Risk/Reward:</strong> ${risk}</p>
             </div>
             
-            <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; border-left: 4px solid #2196F3; margin-top: 15px;">
-                <strong>✅ Tại sao tin tưởng được:</strong> AI đã đọc và phân tích Confluence từ 6 khung thời gian. Tín hiệu này phù hợp với đa số khung đang ${bias === 'bullish' ? 'tăng' : bias === 'bearish' ? 'giảm' : 'sideway'}.
+            <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; border-left: 4px solid #4CAF50; margin-top: 15px;">
+                <strong>✅ LEVEL 1 - Technical Analysis:</strong><br>
+                Phân tích này dựa trên <strong>INDICATORS THẬT</strong> được tính từ dữ liệu historical:<br>
+                • RSI tính từ 14 ngày giá thực<br>
+                • MACD tính từ EMA 12/26/9<br>
+                • ATR tính từ True Range 14 ngày<br>
+                • Pattern nhận diện từ nến thực tế<br>
+                • Kết hợp với Confluence từ 6 khung thời gian
             </div>
             
             <div style="background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; margin-top: 15px;">
-                <strong>⚠️ Lưu ý:</strong> Đây là phân tích AI dựa trên dữ liệu hiện tại + Confluence. Luôn xác nhận lại với chart và sử dụng Stop Loss!
+                <strong>⚠️ Lưu ý:</strong> Đây là phân tích kỹ thuật dựa trên dữ liệu thực. Luôn xác nhận với chart TradingView và sử dụng Stop Loss!
             </div>
         `;
     }
@@ -897,25 +962,35 @@
 
     // ============= INITIALIZATION =============
     async function init() {
-        // Simulate fetching price
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('🚀 Initializing XAU/USD Ultimate LEVEL 1...');
         
-        priceData.current = 4215 + (Math.random() - 0.5) * 20;
-        priceData.atr14 = 50 + Math.random() * 30;
+        // Step 1: Fetch historical data & calculate REAL indicators
+        await updateTechnicalIndicators();
         
-        // Initialize Multi-timeframe analysis
+        // Step 2: Analyze multi-timeframe (uses real data)
         analyzeMultiTimeframe();
         
-        console.log('XAU/USD Ultimate Lite initialized!');
+        // Step 3: Ready for AI analysis
+        console.log('✅ System ready! Click "Chạy AI Analysis" to get signal.');
+        console.log('📊 Technical Data:', {
+            Price: priceData.current.toFixed(2),
+            RSI: priceData.rsi.toFixed(2),
+            MACD: priceData.macdHistogram.toFixed(2),
+            ATR: priceData.atr14.toFixed(2),
+            Pattern: priceData.detectedPattern?.name || 'None',
+            Trend: priceData.trend
+        });
     }
 
     // Run on load
     window.addEventListener('load', init);
 
-    // Auto-refresh confluence every 2 minutes
-    setInterval(() => {
+    // Auto-refresh indicators every 5 minutes
+    setInterval(async () => {
+        console.log('🔄 Auto-refreshing indicators...');
+        await updateTechnicalIndicators();
         analyzeMultiTimeframe();
-    }, 120000);
+    }, 300000); // 5 minutes
 </script>
 
 <!-- Note về Claude API -->

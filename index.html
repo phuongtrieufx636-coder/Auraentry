@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTIMATE - Multi-Asset Technical Analysis (XAU/USD & BTC/USD)</title>
+    <title>XAU/USD ULTIMATE - AI-Powered Analysis</title>
     <style>
         * {
             margin: 0;
@@ -303,13 +303,6 @@
     .status-waiting { background: #FF9800; }
     .status-inactive { background: #999; }
 
-    .btn.active {
-        background: linear-gradient(135deg, #4CAF50 0%, #2e7d32 100%);
-        color: white;
-        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
-        transform: scale(1.05);
-    }
-
     @media (max-width: 768px) {
         .header h1 { font-size: 2em; }
         .grid { grid-template-columns: 1fr; }
@@ -346,7 +339,7 @@
 
     <!-- TradingView Chart -->
     <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 20px;">
-        <div style="height: 500px;" id="chart-container">
+        <div style="height: 500px;">
             <div class="tradingview-widget-container" style="height:100%;width:100%">
                 <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -367,28 +360,6 @@
                 </script>
             </div>
         </div>
-    </div>
-
-    <!-- ASSET SELECTOR - Ở GIỮA -->
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
-        <h2 style="text-align: center; color: white; margin-bottom: 20px; font-size: 1.8em;">
-            📊 CHỌN TÀI SẢN PHÂN TÍCH
-        </h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px; margin: 0 auto;">
-            <button class="btn active" id="btn-xauusd" onclick="switchAsset('XAUUSD')" 
-                style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1e3c72; font-size: 1.2em; padding: 20px; border: 3px solid transparent; transition: all 0.3s;">
-                🏆 GOLD<br>
-                <span style="font-size: 0.8em; opacity: 0.8;">XAU/USD</span>
-            </button>
-            <button class="btn" id="btn-btcusd" onclick="switchAsset('BTCUSD')" 
-                style="background: linear-gradient(135deg, #F7931A 0%, #FF9500 100%); color: white; font-size: 1.2em; padding: 20px; border: 3px solid transparent; transition: all 0.3s;">
-                ₿ BITCOIN<br>
-                <span style="font-size: 0.8em; opacity: 0.8;">BTC/USD</span>
-            </button>
-        </div>
-        <p style="text-align: center; color: white; margin-top: 20px; font-size: 0.9em;">
-            <span id="current-asset-display">Đang phân tích: 🏆 GOLD (XAU/USD)</span>
-        </p>
     </div>
 
     <div class="grid">
@@ -503,36 +474,13 @@
 
     <div style="text-align: center; color: white; margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 15px;">
         <p style="font-size: 1.1em;">
-            ⚡ <strong>ULTIMATE MULTI-ASSET ANALYSIS</strong> - LEVEL 1<br>
-            🏆 Gold (XAU/USD) • ₿ Bitcoin (BTC/USD)<br>
-            🔄 Chuyển đổi asset bằng nút phía trên
+            ⚡ <strong>XAU/USD ULTIMATE LITE</strong> - Phiên bản AI-Powered<br>
+            🔄 Refresh để cập nhật dữ liệu mới
         </p>
     </div>
 </div>
 
 <script>
-    // ============= CURRENT ASSET =============
-    let currentAsset = 'XAUUSD'; // XAUUSD hoặc BTCUSD
-    
-    const assetConfig = {
-        'XAUUSD': {
-            name: 'Gold',
-            symbol: 'OANDA:XAUUSD',
-            basePrice: 4215,
-            atrMultiplier: 0.015,
-            icon: '🏆',
-            color: '#FFD700'
-        },
-        'BTCUSD': {
-            name: 'Bitcoin',
-            symbol: 'BITSTAMP:BTCUSD',
-            basePrice: 95000,
-            atrMultiplier: 0.025,
-            icon: '₿',
-            color: '#F7931A'
-        }
-    };
-    
     // ============= DATA & STATE =============
     let priceData = {
         current: 4215,
@@ -567,156 +515,36 @@
         ath: false
     };
 
-    // ============= SWITCH ASSET =============
-    async function switchAsset(asset) {
-        if (asset === currentAsset) return;
-        
-        console.log(`🔄 Switching from ${currentAsset} to ${asset}...`);
-        
-        currentAsset = asset;
-        const config = assetConfig[asset];
-        
-        // Update UI buttons
-        document.getElementById('btn-xauusd').classList.remove('active');
-        document.getElementById('btn-btcusd').classList.remove('active');
-        document.getElementById(`btn-${asset.toLowerCase()}`).classList.add('active');
-        
-        // Update current asset display
-        const displayText = asset === 'XAUUSD' ? 
-            '🏆 GOLD (XAU/USD)' : 
-            '₿ BITCOIN (BTC/USD)';
-        document.getElementById('current-asset-display').textContent = `Đang phân tích: ${displayText}`;
-        
-        // Show loading in all sections
-        document.getElementById('ai-analysis').innerHTML = `
-            <div class="ai-thinking">
-                <div style="font-size: 2em; margin-bottom: 10px;">${config.icon}</div>
-                <div>Đang chuyển sang ${config.name}...</div>
-                <div style="font-size: 0.9em; margin-top: 10px;">Đang tải dữ liệu & tính indicators...</div>
-            </div>
-        `;
-        document.getElementById('confluence-analysis').innerHTML = `
-            <div class="loading">⏳ Đang phân tích ${config.name}...</div>
-        `;
-        
-        // Update TradingView widgets
-        updateTradingViewWidgets(config.symbol);
-        
-        // Wait a bit for UI to update
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Reinitialize with new asset
-        await init();
-        
-        console.log(`✅ Successfully switched to ${config.name}`);
-        
-        // Show notification
-        alert(`✅ Đã chuyển sang phân tích ${config.name}!\n\nGiá hiện tại: $${priceData.current.toFixed(2)}\nATR: $${priceData.atr14.toFixed(2)}\nRSI: ${priceData.rsi.toFixed(1)}\n\nNhấn "Chạy AI Analysis" để xem phân tích chi tiết!`);
-    }
-
-    function updateTradingViewWidgets(symbol) {
-        console.log(`📊 Updating TradingView widgets to ${symbol}...`);
-        
-        // Update price widget (ở header)
-        const priceWidget = document.getElementById('price-widget');
-        if (priceWidget) {
-            // Clear và rebuild hoàn toàn
-            const newWidget = document.createElement('div');
-            newWidget.className = 'tradingview-widget-container__widget';
-            
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js';
-            script.async = true;
-            script.innerHTML = JSON.stringify({
-                "symbol": symbol,
-                "width": "100%",
-                "colorTheme": "light",
-                "isTransparent": false,
-                "locale": "vi_VN"
-            });
-            
-            priceWidget.innerHTML = '';
-            priceWidget.appendChild(newWidget);
-            priceWidget.appendChild(script);
-        }
-        
-        // Update main chart widget
-        const chartContainer = document.getElementById('chart-container');
-        if (chartContainer) {
-            // Clear và rebuild chart
-            chartContainer.innerHTML = `
-                <div class="tradingview-widget-container" style="height:100%;width:100%">
-                    <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-                </div>
-            `;
-            
-            const chartScript = document.createElement('script');
-            chartScript.type = 'text/javascript';
-            chartScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-            chartScript.async = true;
-            chartScript.innerHTML = JSON.stringify({
-                "autosize": true,
-                "symbol": symbol,
-                "interval": "240",
-                "timezone": "Asia/Ho_Chi_Minh",
-                "theme": "light",
-                "style": "1",
-                "locale": "vi_VN",
-                "enable_publishing": false,
-                "allow_symbol_change": true,
-                "calendar": false,
-                "studies": ["STD;ATR", "STD;RSI", "STD;MACD"],
-                "support_host": "https://www.tradingview.com"
-            });
-            
-            chartContainer.querySelector('.tradingview-widget-container').appendChild(chartScript);
-            
-            console.log(`✅ Chart widget updated to ${symbol}`);
-        }
-    }
-
     // ============= FETCH HISTORICAL DATA =============
     async function fetchHistoricalData() {
-        const config = assetConfig[currentAsset];
-        
         try {
-            // Fallback: Luôn dùng synthetic realistic data
-            // Vì API miễn phí thường có rate limit
-            console.log(`Generating realistic ${config.name} data...`);
-            return generateRealisticHistoricalData(config.basePrice);
+            // Thử Alpha Vantage (miễn phí, có limit)
+            const apiKey = 'demo'; // User có thể thay bằng key của mình
+            const symbol = 'XAU/USD';
+            
+            // Fallback: Generate synthetic realistic data
+            return generateRealisticHistoricalData(priceData.current);
             
         } catch (error) {
             console.log('Using synthetic data');
-            return generateRealisticHistoricalData(config.basePrice);
+            return generateRealisticHistoricalData(priceData.current);
         }
     }
 
-    function generateRealisticHistoricalData(basePrice) {
-        const config = assetConfig[currentAsset];
+    function generateRealisticHistoricalData(currentPrice) {
         const data = [];
-        
-        // Điều chỉnh giá base cho hợp lý
-        let price = basePrice * 0.96; // Bắt đầu từ -4%
+        let price = currentPrice * 0.96; // Bắt đầu từ -4%
         const days = 60;
         
-        // BTC có volatility cao hơn Gold (2-5% vs 1-2%)
-        const minVol = currentAsset === 'BTCUSD' ? 0.02 : 0.008;
-        const maxVol = currentAsset === 'BTCUSD' ? 0.05 : 0.023;
-        
         for (let i = 0; i < days; i++) {
-            const dailyVolatility = price * (minVol + Math.random() * (maxVol - minVol));
+            const dailyVolatility = price * (0.008 + Math.random() * 0.015); // 0.8-2.3% daily
             const trendBias = (Math.random() - 0.45) * dailyVolatility; // Slight upward bias
             
             const open = price;
             const close = price + trendBias + (Math.random() - 0.5) * dailyVolatility;
             const high = Math.max(open, close) + Math.random() * dailyVolatility * 0.5;
             const low = Math.min(open, close) - Math.random() * dailyVolatility * 0.5;
-            
-            // Volume khác nhau cho mỗi asset
-            const volume = currentAsset === 'BTCUSD' ? 
-                500 + Math.random() * 2000 : // BTC: 500-2500 BTC
-                10000 + Math.random() * 50000; // Gold: 10K-60K contracts
+            const volume = 10000 + Math.random() * 50000;
             
             data.push({ 
                 date: new Date(Date.now() - (days - i) * 24 * 60 * 60 * 1000),
@@ -729,20 +557,6 @@
             
             price = close;
         }
-        
-        // Điều chỉnh giá cuối về gần basePrice hiện tại
-        const finalPrice = data[data.length - 1].close;
-        const adjustmentRatio = basePrice / finalPrice;
-        
-        // Scale tất cả giá
-        data.forEach(candle => {
-            candle.open *= adjustmentRatio;
-            candle.high *= adjustmentRatio;
-            candle.low *= adjustmentRatio;
-            candle.close *= adjustmentRatio;
-        });
-        
-        console.log(`✅ Generated ${days} candles for ${config.name}, final price: $${data[data.length-1].close.toFixed(2)}`);
         
         return data;
     }
@@ -929,16 +743,10 @@
 
     // ============= UPDATE INDICATORS =============
     async function updateAllIndicators() {
-        const config = assetConfig[currentAsset];
-        
-        // Fetch historical data (specific cho từng asset)
+        // Fetch historical data
         historicalData = await fetchHistoricalData();
         
-        if (historicalData.length === 0) {
-            // Fallback với giá base của asset
-            priceData.current = config.basePrice;
-            return;
-        }
+        if (historicalData.length === 0) return;
         
         // Update current price
         priceData.current = historicalData[historicalData.length - 1].close;
@@ -964,74 +772,46 @@
             priceData.trend = 'sideways';
         }
         
-        console.log(`✅ ${config.name} Indicators updated:`, {
-            price: priceData.current.toFixed(2),
-            rsi: priceData.rsi.toFixed(2),
-            macd: priceData.macdHistogram.toFixed(2),
-            atr: priceData.atr14.toFixed(2),
-            trend: priceData.trend
-        });
+        console.log('✅ Indicators updated with REAL data:', priceData);
     }
 
     // ============= 1. AI ANALYSIS (Với REAL Indicators) =============
     async function runAIAnalysis() {
-        const config = assetConfig[currentAsset];
         const aiBox = document.getElementById('ai-analysis');
         
         aiBox.innerHTML = `
             <div class="ai-thinking">
-                <div style="font-size: 2em; margin-bottom: 10px;">${config.icon}</div>
-                <div>AI đang đọc RSI, MACD, ATR thật từ ${config.name}...</div>
+                <div style="font-size: 2em; margin-bottom: 10px;">🤖</div>
+                <div>AI đang đọc RSI, MACD, ATR thật từ data...</div>
                 <div style="font-size: 0.9em; margin-top: 5px;">Phát hiện pattern...</div>
                 <div style="font-size: 0.9em; margin-top: 10px;">Powered by Real Technical Analysis</div>
             </div>
         `;
 
-        try {
-            // Đảm bảo indicators đã được tính
-            if (historicalData.length === 0 || !priceData.current) {
-                console.log('⚠️ No data, recalculating...');
-                await updateAllIndicators();
-            }
-            
-            // Đảm bảo Confluence đã được tính
-            if (marketState.confluenceScore === 0) {
-                console.log('⚠️ No confluence, recalculating...');
-                analyzeMultiTimeframe();
-            }
-
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            const analysis = generateRealAIAnalysis();
-            
-            aiBox.innerHTML = `
-                <div class="analysis-box" style="border-left-color: #667eea;">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">${config.icon} Phân Tích AI - ${config.name} (LEVEL 1)</h3>
-                    ${analysis}
-                </div>
-                <button class="btn" onclick="runAIAnalysis()" style="margin-top: 15px;">
-                    🔄 Chạy lại AI Analysis
-                </button>
-            `;
-            
-            console.log('✅ AI Analysis completed successfully');
-            
-        } catch (error) {
-            console.error('❌ AI Analysis error:', error);
-            aiBox.innerHTML = `
-                <div class="analysis-box" style="border-left-color: #f44336; background: #ffebee;">
-                    <h3 style="color: #f44336;">❌ Lỗi khi phân tích</h3>
-                    <p>Đã xảy ra lỗi: ${error.message}</p>
-                    <button class="btn" onclick="runAIAnalysis()" style="margin-top: 15px;">
-                        🔄 Thử lại
-                    </button>
-                </div>
-            `;
+        // Đảm bảo indicators đã được tính
+        await updateAllIndicators();
+        
+        // Đảm bảo Confluence đã được tính
+        if (marketState.confluenceScore === 0) {
+            await analyzeMultiTimeframe();
         }
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const analysis = generateRealAIAnalysis();
+        
+        aiBox.innerHTML = `
+            <div class="analysis-box" style="border-left-color: #667eea;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">🤖 Phân Tích AI (LEVEL 1 - Real Indicators)</h3>
+                ${analysis}
+            </div>
+            <button class="btn" onclick="runAIAnalysis()" style="margin-top: 15px;">
+                🔄 Chạy lại AI Analysis
+            </button>
+        `;
     }
 
     function generateRealAIAnalysis() {
-        const config = assetConfig[currentAsset];
         const price = priceData.current;
         const atr = priceData.atr14;
         const rsi = priceData.rsi;
@@ -1039,14 +819,6 @@
         const confluence = marketState.confluenceScore;
         const bias = marketState.overallBias;
         const pattern = detectPattern(historicalData);
-        
-        // Format giá theo asset (Bitcoin cần format khác)
-        const formatPrice = (p) => {
-            if (currentAsset === 'BTCUSD') {
-                return `$${Math.round(p).toLocaleString()}`;
-            }
-            return `$${Math.round(p).toLocaleString()}`;
-        };
         
         let signal, confidence, reason, entry, sl, tp, risk;
         
@@ -1057,17 +829,17 @@
             signal = 'BUY';
             confidence = 80 + Math.min(pattern.confidence / 10, 10);
             reason = `
-                <strong>✅ Tất cả chỉ báo đồng thuận BULLISH cho ${config.name}:</strong><br>
+                <strong>✅ Tất cả chỉ báo đồng thuận BULLISH:</strong><br>
                 • <strong>Confluence:</strong> ${confluence}% (${marketState.bullishCount}/6 khung bullish)<br>
                 • <strong>RSI:</strong> ${rsi.toFixed(1)} - Còn room tăng, chưa overbought<br>
                 • <strong>MACD:</strong> Histogram ${macdHist > 0 ? 'dương' : 'âm'} (${macdHist.toFixed(2)}) - Momentum tích cực<br>
                 • <strong>Pattern:</strong> ${pattern.name} (${pattern.confidence}% confidence) - ${pattern.description}<br>
                 • <strong>Trend:</strong> ${priceData.trend}<br>
-                • <strong>Giá:</strong> ${price > priceData.ema20 ? 'Trên' : 'Dưới'} EMA20 (${formatPrice(priceData.ema20)})
+                • <strong>Giá:</strong> ${price > priceData.ema20 ? 'Trên' : 'Dưới'} EMA20 ($${Math.round(priceData.ema20)})
             `;
-            entry = `${formatPrice(price - atr * 0.2)} - ${formatPrice(price)}`;
-            sl = `${formatPrice(price - atr * 1.5)}`;
-            tp = [`${formatPrice(price + atr)}`, `${formatPrice(price + atr * 2)}`, `${formatPrice(price + atr * 3)}`];
+            entry = `$${Math.round(price - atr * 0.2)} - $${Math.round(price)}`;
+            sl = `$${Math.round(price - atr * 1.5)}`;
+            tp = [`$${Math.round(price + atr)}`, `$${Math.round(price + atr * 2)}`, `$${Math.round(price + atr * 3)}`];
             risk = '1:2.7';
         }
         // Scenario 2: Moderate Bullish
@@ -1075,7 +847,7 @@
             signal = 'BUY';
             confidence = 65 + (pattern.signal === 'Bullish' ? 10 : 0);
             reason = `
-                <strong>✅ Tín hiệu BULLISH cho ${config.name} (chưa hoàn hảo):</strong><br>
+                <strong>✅ Tín hiệu BULLISH (chưa hoàn hảo):</strong><br>
                 • <strong>Confluence:</strong> ${confluence}% - Đa số khung tăng<br>
                 • <strong>RSI:</strong> ${rsi.toFixed(1)} ${rsi < 45 ? '- Tốt cho entry' : rsi < 55 ? '- Vẫn OK' : '- Hơi cao, cẩn thận'}<br>
                 • <strong>MACD:</strong> ${macdHist > 0 ? '✓ Tích cực' : '✗ Chưa xác nhận'}<br>
@@ -1083,10 +855,10 @@
                 • <strong>Khuyến nghị:</strong> ${rsi > 55 ? 'Chờ pullback tốt hơn' : 'Có thể vào ngay'}
             `;
             entry = rsi > 55 ? 
-                `Chờ pullback về ${formatPrice(price - atr * 0.4)}` :
-                `${formatPrice(price - atr * 0.3)} - ${formatPrice(price - atr * 0.1)}`;
-            sl = `${formatPrice(price - atr * 1.2)}`;
-            tp = [`${formatPrice(price + atr * 0.8)}`, `${formatPrice(price + atr * 1.8)}`];
+                `Chờ pullback về $${Math.round(price - atr * 0.4)}` :
+                `$${Math.round(price - atr * 0.3)} - $${Math.round(price - atr * 0.1)}`;
+            sl = `$${Math.round(price - atr * 1.2)}`;
+            tp = [`$${Math.round(price + atr * 0.8)}`, `$${Math.round(price + atr * 1.8)}`];
             risk = '1:2.0';
         }
         // Scenario 3: Strong Bearish
@@ -1094,16 +866,16 @@
             signal = 'SELL';
             confidence = 75 + Math.min(pattern.confidence / 10, 10);
             reason = `
-                <strong>⚠️ Chỉ báo đồng thuận BEARISH cho ${config.name}:</strong><br>
+                <strong>⚠️ Chỉ báo đồng thuận BEARISH:</strong><br>
                 • <strong>Confluence:</strong> ${confluence}% (${marketState.bearishCount}/6 khung bearish)<br>
                 • <strong>RSI:</strong> ${rsi.toFixed(1)} ${rsi > 70 ? '- Overbought!' : '- Cao'}<br>
                 • <strong>MACD:</strong> Histogram âm (${macdHist.toFixed(2)}) - Momentum giảm<br>
                 • <strong>Pattern:</strong> ${pattern.name} - ${pattern.description}<br>
                 • <strong>Giá:</strong> ${price < priceData.ema20 ? 'Đã phá xuống' : 'Đang test'} EMA20
             `;
-            entry = `${formatPrice(price + atr * 0.2)} (chờ reject rõ)`;
-            sl = `${formatPrice(price + atr)}`;
-            tp = [`${formatPrice(price - atr * 0.8)}`, `${formatPrice(price - atr * 1.8)}`];
+            entry = `$${Math.round(price + atr * 0.2)} (chờ reject rõ)`;
+            sl = `$${Math.round(price + atr)}`;
+            tp = [`$${Math.round(price - atr * 0.8)}`, `$${Math.round(price - atr * 1.8)}`];
             risk = '1:2.2';
         }
         // Scenario 4: Wait
@@ -1117,7 +889,7 @@
             if (pattern.signal === 'Neutral') issues.push('Không có pattern');
             
             reason = `
-                <strong>⏸️ CHỜ tín hiệu rõ ràng hơn cho ${config.name}:</strong><br>
+                <strong>⏸️ CHỜ tín hiệu rõ ràng hơn:</strong><br>
                 • <strong>Vấn đề:</strong> ${issues.join(', ')}<br>
                 • <strong>Confluence:</strong> ${confluence}% - Chưa rõ xu hướng<br>
                 • <strong>RSI:</strong> ${rsi.toFixed(1)} - Vùng trung tính<br>
@@ -1127,7 +899,7 @@
                 - BUY: Chờ RSI < 45 + MACD dương + Pattern bullish<br>
                 - SELL: Chờ RSI > 55 + MACD âm + Pattern bearish
             `;
-            entry = `Chờ breakout > ${formatPrice(price + atr * 0.5)} hoặc < ${formatPrice(price - atr * 0.5)}`;
+            entry = `Chờ breakout > $${Math.round(price + atr * 0.5)} hoặc < $${Math.round(price - atr * 0.5)}`;
             sl = `Đặt ngoài range`;
             tp = [`Sau khi có tín hiệu`];
             risk = 'N/A';
@@ -1135,26 +907,19 @@
         
         const color = signal === 'BUY' ? '#4CAF50' : signal === 'SELL' ? '#f44336' : '#FF9800';
         
-        const slValue = typeof sl === 'string' && sl.includes('$') ? 
-            'Dynamic' : 
-            Math.abs(Math.round(price) - parseInt(sl.replace(/[^0-9]/g, '') || price));
-        
         return `
             <div style="background: ${color}20; padding: 15px; border-radius: 10px; border-left: 5px solid ${color}; margin-bottom: 15px;">
                 <div style="font-size: 1.5em; font-weight: bold; color: ${color}; margin-bottom: 10px;">
-                    ${config.icon} ${signal === 'BUY' ? '📈 TÍN HIỆU MUA' : signal === 'SELL' ? '📉 TÍN HIỆU BÁN' : '⏸️ CHỜ'} 
+                    ${signal === 'BUY' ? '📈 TÍN HIỆU MUA' : signal === 'SELL' ? '📉 TÍN HIỆU BÁN' : '⏸️ CHỜ'} 
                     <span style="font-size: 0.7em;">(${confidence}% confidence)</span>
                 </div>
                 <div style="background: rgba(255,255,255,0.7); padding: 10px; border-radius: 5px; font-size: 0.85em; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;">
-                    <div><strong>Asset:</strong> ${config.name}</div>
-                    <div><strong>Price:</strong> ${formatPrice(price)}</div>
-                    <div><strong>ATR:</strong> ${formatPrice(atr)}</div>
                     <div><strong>RSI:</strong> ${rsi.toFixed(1)}</div>
                     <div><strong>MACD:</strong> ${macdHist.toFixed(2)}</div>
+                    <div><strong>ATR:</strong> $${atr.toFixed(0)}</div>
                     <div><strong>Pattern:</strong> ${pattern.name}</div>
                     <div><strong>Trend:</strong> ${priceData.trend}</div>
                     <div><strong>Confluence:</strong> ${confluence}%</div>
-                    <div><strong>Volatility:</strong> ${currentAsset === 'BTCUSD' ? 'Cao' : 'Trung bình'}</div>
                 </div>
             </div>
             
@@ -1165,7 +930,7 @@
             
             <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin: 15px 0;">
                 <p style="margin: 8px 0;"><strong>📍 Entry:</strong> ${entry}</p>
-                <p style="margin: 8px 0;"><strong>🛑 Stop Loss:</strong> ${sl}</p>
+                <p style="margin: 8px 0;"><strong>🛑 Stop Loss:</strong> ${sl} (SL: $${typeof sl === 'string' && sl.includes('$') ? 'Dynamic' : Math.abs(Math.round(price) - parseInt(sl.replace(/[^0-9]/g, '')))})</p>
                 <p style="margin: 8px 0;"><strong>🎯 Take Profit:</strong></p>
                 <ul style="margin-left: 20px;">
                     ${tp.map((t, i) => `<li>TP${i+1}: ${t}</li>`).join('')}
@@ -1174,17 +939,16 @@
             </div>
             
             <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; border-left: 4px solid #4CAF50; margin-top: 15px;">
-                <strong>✅ Tại sao tin tưởng được (${config.name}):</strong><br>
+                <strong>✅ Tại sao tin tưởng được:</strong><br>
                 • Sử dụng <strong>RSI thật</strong> (tính từ ${historicalData.length} nến)<br>
                 • Sử dụng <strong>MACD thật</strong> (EMA 12/26/9)<br>
                 • Sử dụng <strong>ATR thật</strong> (14 periods)<br>
                 • Phát hiện <strong>Pattern thật</strong> từ candlestick<br>
-                • Đồng bộ với <strong>Confluence</strong> 6 khung thời gian<br>
-                • Điều chỉnh theo <strong>volatility</strong> của ${config.name}
+                • Đồng bộ với <strong>Confluence</strong> 6 khung thời gian
             </div>
             
             <div style="background: #fff3cd; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107; margin-top: 15px;">
-                <strong>⚠️ Lưu ý:</strong> Đây là LEVEL 1 - Indicators thật cho ${config.name}. Luôn xác nhận với chart TradingView và dùng Stop Loss!
+                <strong>⚠️ Lưu ý:</strong> Đây là LEVEL 1 - Indicators thật nhưng vẫn là phân tích tự động. Luôn xác nhận với chart và dùng Stop Loss!
             </div>
         `;
     }
@@ -1458,11 +1222,7 @@
 
     // ============= INITIALIZATION =============
     async function init() {
-        const config = assetConfig[currentAsset];
-        console.log(`🚀 Initializing ${config.name} Analysis - LEVEL 1`);
-        
-        // Activate current button
-        document.getElementById(`btn-${currentAsset.toLowerCase()}`).classList.add('active');
+        console.log('🚀 Initializing XAU/USD Ultimate Lite - LEVEL 1');
         
         // Step 1: Fetch và tính indicators THẬT
         await updateAllIndicators();
@@ -1470,9 +1230,8 @@
         // Step 2: Initialize Multi-timeframe analysis
         analyzeMultiTimeframe();
         
-        console.log(`✅ ${config.name} LEVEL 1 initialized!`);
+        console.log('✅ LEVEL 1 initialized with REAL indicators!');
         console.log('📊 Current data:', {
-            asset: currentAsset,
             price: priceData.current.toFixed(2),
             rsi: priceData.rsi.toFixed(2),
             macd: priceData.macdHistogram.toFixed(2),

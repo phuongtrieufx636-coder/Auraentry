@@ -615,86 +615,108 @@
     }
 
     function updateTradingViewWidgets(symbol) {
+        console.log(`📊 Updating TradingView widgets to ${symbol}...`);
+        
         // Update price widget (ở header)
         const priceWidget = document.getElementById('price-widget');
         if (priceWidget) {
-            priceWidget.innerHTML = `
-                <div class="tradingview-widget-container__widget"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
-                {
-                    "symbol": "${symbol}",
-                    "width": "100%",
-                    "colorTheme": "light",
-                    "isTransparent": false,
-                    "locale": "vi_VN"
-                }
-                </` + `script>
-            `;
+            // Clear và rebuild hoàn toàn
+            const newWidget = document.createElement('div');
+            newWidget.className = 'tradingview-widget-container__widget';
+            
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js';
+            script.async = true;
+            script.innerHTML = JSON.stringify({
+                "symbol": symbol,
+                "width": "100%",
+                "colorTheme": "light",
+                "isTransparent": false,
+                "locale": "vi_VN"
+            });
+            
+            priceWidget.innerHTML = '';
+            priceWidget.appendChild(newWidget);
+            priceWidget.appendChild(script);
         }
         
-        // Update chart widget
+        // Update main chart widget
         const chartContainer = document.getElementById('chart-container');
         if (chartContainer) {
+            // Clear và rebuild chart
             chartContainer.innerHTML = `
                 <div class="tradingview-widget-container" style="height:100%;width:100%">
                     <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                    {
-                        "autosize": true,
-                        "symbol": "${symbol}",
-                        "interval": "240",
-                        "timezone": "Asia/Ho_Chi_Minh",
-                        "theme": "light",
-                        "style": "1",
-                        "locale": "vi_VN",
-                        "enable_publishing": false,
-                        "allow_symbol_change": true,
-                        "calendar": false,
-                        "studies": ["STD;ATR", "STD;RSI", "STD;MACD"],
-                        "support_host": "https://www.tradingview.com"
-                    }
-                    </` + `script>
                 </div>
             `;
+            
+            const chartScript = document.createElement('script');
+            chartScript.type = 'text/javascript';
+            chartScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+            chartScript.async = true;
+            chartScript.innerHTML = JSON.stringify({
+                "autosize": true,
+                "symbol": symbol,
+                "interval": "240",
+                "timezone": "Asia/Ho_Chi_Minh",
+                "theme": "light",
+                "style": "1",
+                "locale": "vi_VN",
+                "enable_publishing": false,
+                "allow_symbol_change": true,
+                "calendar": false,
+                "studies": ["STD;ATR", "STD;RSI", "STD;MACD"],
+                "support_host": "https://www.tradingview.com"
+            });
+            
+            chartContainer.querySelector('.tradingview-widget-container').appendChild(chartScript);
+            
+            console.log(`✅ Chart widget updated to ${symbol}`);
         }
     }
 
     // ============= FETCH HISTORICAL DATA =============
     async function fetchHistoricalData() {
+        const config = assetConfig[currentAsset];
+        
         try {
-            // Thử Alpha Vantage (miễn phí, có limit)
-            const apiKey = 'demo'; // User có thể thay bằng key của mình
-            const symbol = 'XAU/USD';
-            
-            // Fallback: Generate synthetic realistic data
-            return generateRealisticHistoricalData(priceData.current);
+            // Fallback: Luôn dùng synthetic realistic data
+            // Vì API miễn phí thường có rate limit
+            console.log(`Generating realistic ${config.name} data...`);
+            return generateRealisticHistoricalData(config.basePrice);
             
         } catch (error) {
             console.log('Using synthetic data');
-            return generateRealisticHistoricalData(priceData.current);
+            return generateRealisticHistoricalData(config.basePrice);
         }
     }
 
-    function generateRealisticHistoricalData(currentPrice) {
+    function generateRealisticHistoricalData(basePrice) {
         const config = assetConfig[currentAsset];
         const data = [];
-        let price = currentPrice * 0.96;
+        
+        // Điều chỉnh giá base cho hợp lý
+        let price = basePrice * 0.96; // Bắt đầu từ -4%
         const days = 60;
         
-        // BTC có volatility cao hơn Gold
-        const baseVolatility = currentAsset === 'BTCUSD' ? 0.025 : 0.01;
+        // BTC có volatility cao hơn Gold (2-5% vs 1-2%)
+        const minVol = currentAsset === 'BTCUSD' ? 0.02 : 0.008;
+        const maxVol = currentAsset === 'BTCUSD' ? 0.05 : 0.023;
         
         for (let i = 0; i < days; i++) {
-            const dailyVolatility = price * (baseVolatility + Math.random() * baseVolatility);
-            const trendBias = (Math.random() - 0.45) * dailyVolatility;
+            const dailyVolatility = price * (minVol + Math.random() * (maxVol - minVol));
+            const trendBias = (Math.random() - 0.45) * dailyVolatility; // Slight upward bias
             
             const open = price;
             const close = price + trendBias + (Math.random() - 0.5) * dailyVolatility;
             const high = Math.max(open, close) + Math.random() * dailyVolatility * 0.5;
             const low = Math.min(open, close) - Math.random() * dailyVolatility * 0.5;
+            
+            // Volume khác nhau cho mỗi asset
             const volume = currentAsset === 'BTCUSD' ? 
-                1000 + Math.random() * 5000 : // BTC volume thấp hơn
-                10000 + Math.random() * 50000; // Gold volume
+                500 + Math.random() * 2000 : // BTC: 500-2500 BTC
+                10000 + Math.random() * 50000; // Gold: 10K-60K contracts
             
             data.push({ 
                 date: new Date(Date.now() - (days - i) * 24 * 60 * 60 * 1000),
@@ -707,6 +729,20 @@
             
             price = close;
         }
+        
+        // Điều chỉnh giá cuối về gần basePrice hiện tại
+        const finalPrice = data[data.length - 1].close;
+        const adjustmentRatio = basePrice / finalPrice;
+        
+        // Scale tất cả giá
+        data.forEach(candle => {
+            candle.open *= adjustmentRatio;
+            candle.high *= adjustmentRatio;
+            candle.low *= adjustmentRatio;
+            candle.close *= adjustmentRatio;
+        });
+        
+        console.log(`✅ Generated ${days} candles for ${config.name}, final price: $${data[data.length-1].close.toFixed(2)}`);
         
         return data;
     }

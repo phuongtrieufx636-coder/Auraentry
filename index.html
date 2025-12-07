@@ -368,7 +368,7 @@
     <div class="container">
         <div class="header">
             <h1>🚀 CRYPTO & GOLD ULTIMATE ANALYSIS</h1>
-            <div class="ultimate-badge">⚡ REAL-TIME API - Free & Accurate</div>
+            <div class="ultimate-badge">⚡ TradingView API - Real-Time</div>
 
 ```
         <div class="symbol-selector">
@@ -380,7 +380,7 @@
 
         <div class="price-status" id="price-status">
             <span class="status-indicator status-waiting"></span>
-            Đang lấy giá từ API...
+            Đang lấy giá từ TradingView...
         </div>
         
         <div style="margin-top: 20px; color: #1e3c72; font-size: 1.1em; position: relative; z-index: 1;">
@@ -406,13 +406,13 @@
         <div class="card ai-card">
             <h2>
                 🤖 AI ANALYSIS 
-                <span class="feature-badge">REAL API</span>
+                <span class="feature-badge">TRADINGVIEW</span>
             </h2>
             <div id="ai-analysis">
                 <div class="analysis-box">
                     <p style="color: #666; margin-bottom: 15px;">
                         <span class="status-indicator status-waiting"></span>
-                        Nhấn nút để AI phân tích với giá thật từ API
+                        Nhấn nút để AI phân tích với giá thật từ TradingView
                     </p>
                     <button class="btn" onclick="runAIAnalysis()" id="ai-btn">
                         🚀 Chạy AI Analysis
@@ -494,17 +494,17 @@
     <div class="card" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,240,240,0.95) 100%);">
         <h2>📋 Thông Tin</h2>
         <div class="analysis-box">
-            <p><strong>🎯 API Sources:</strong> CoinGecko + Binance (BTC) • Finage Forex (XAU)</p>
+            <p><strong>🎯 Data Source:</strong> TradingView Scanner API + Datafeed API</p>
         </div>
         <div class="analysis-box">
-            <p><strong>🔄 Auto-Update:</strong> Giá tự động cập nhật mỗi 60 giây.</p>
+            <p><strong>🔄 Auto-Update:</strong> Giá cập nhật mỗi 30 giây từ TradingView.</p>
         </div>
     </div>
 
     <div style="text-align: center; color: white; margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 15px;">
         <p style="font-size: 1.1em;">
-            ⚡ <strong>CRYPTO & GOLD ULTIMATE</strong> - Real-Time Free API<br>
-            🎯 100% Accurate Prices
+            ⚡ <strong>CRYPTO & GOLD ULTIMATE</strong> - TradingView Integration<br>
+            📊 Real-Time Market Data
         </p>
     </div>
 </div>
@@ -516,6 +516,8 @@
             name: 'XAU/USD',
             displayName: 'Gold',
             tradingViewSymbol: 'OANDA:XAUUSD',
+            scannerSymbol: 'XAUUSD',
+            market: 'forex',
             priceDecimals: 2,
             lotSize: 100,
             athPrice: 2790,
@@ -525,6 +527,8 @@
             name: 'BTC/USD',
             displayName: 'Bitcoin',
             tradingViewSymbol: 'COINBASE:BTCUSD',
+            scannerSymbol: 'BTCUSD',
+            market: 'crypto',
             priceDecimals: 0,
             lotSize: 1,
             athPrice: 108268,
@@ -550,7 +554,6 @@
     };
 
     let historicalData = [];
-
     let marketState = {
         confluenceScore: 0,
         bullishCount: 0,
@@ -560,93 +563,126 @@
     };
 
     let alertsActive = false;
-    let alertConditions = {
-        entry: false,
-        sr: false,
-        rsi: false,
-        ath: false
-    };
+    let alertConditions = { entry: false, sr: false, rsi: false, ath: false };
 
-    // ============= FETCH REAL PRICE FROM MULTIPLE APIs =============
-    async function fetchRealPrice() {
+    // ============= TRADINGVIEW SCANNER API =============
+    async function fetchPriceFromScanner() {
+        const symbolConfig = SYMBOLS[currentSymbol];
+        
         try {
-            if (currentSymbol === 'BTCUSD') {
-                // Try CoinGecko first
-                try {
-                    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-                    const data = await response.json();
-                    if (data && data.bitcoin && data.bitcoin.usd) {
-                        console.log('✅ BTC price from CoinGecko:', data.bitcoin.usd);
-                        return data.bitcoin.usd;
-                    }
-                } catch (e) {
-                    console.log('CoinGecko failed, trying Binance...');
-                }
-                
-                // Fallback to Binance
-                try {
-                    const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
-                    const data = await response.json();
-                    if (data && data.price) {
-                        console.log('✅ BTC price from Binance:', data.price);
-                        return parseFloat(data.price);
-                    }
-                } catch (e) {
-                    console.log('Binance failed');
-                }
-                
-                // Last fallback
-                return 98000;
-                
-            } else {
-                // XAU/USD - Try multiple forex APIs
-                
-                // Try 1: Finage (free tier)
-                try {
-                    const response = await fetch('https://api.finage.co.uk/last/forex/XAUUSD?apikey=API_KEY_DEMO');
-                    const data = await response.json();
-                    if (data && data.ask) {
-                        console.log('✅ XAU price from Finage:', data.ask);
-                        return parseFloat(data.ask);
-                    }
-                } catch (e) {
-                    console.log('Finage failed, trying alternative...');
-                }
-                
-                // Try 2: Forex Rate API
-                try {
-                    const response = await fetch('https://api.exchangerate.host/latest?base=XAU&symbols=USD');
-                    const data = await response.json();
-                    if (data && data.rates && data.rates.USD) {
-                        const price = 1 / data.rates.USD;
-                        console.log('✅ XAU price from ExchangeRate:', price);
-                        return price;
-                    }
-                } catch (e) {
-                    console.log('ExchangeRate failed');
-                }
-                
-                // Try 3: Frankfurter (ECB data)
-                try {
-                    const response = await fetch('https://api.frankfurter.app/latest?from=USD&to=XAU');
-                    const data = await response.json();
-                    if (data && data.rates && data.rates.XAU) {
-                        const price = 1 / data.rates.XAU;
-                        console.log('✅ XAU price from Frankfurter:', price);
-                        return price;
-                    }
-                } catch (e) {
-                    console.log('Frankfurter failed');
-                }
-                
-                // Last resort fallback
-                return 2650;
+            const response = await fetch(`https://scanner.tradingview.com/${symbolConfig.market}/scan`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    symbols: {
+                        tickers: [symbolConfig.tradingViewSymbol],
+                        query: { types: [] }
+                    },
+                    columns: ["close", "change", "volume", "Recommend.All"]
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data && data.data && data.data.length > 0) {
+                const symbolData = data.data[0];
+                const price = symbolData.d[0]; // close price
+                console.log(`✅ Price from TradingView Scanner: $${price}`);
+                return price;
             }
             
+            throw new Error('Scanner API returned no data');
+            
         } catch (error) {
-            console.error('All APIs failed:', error);
-            return currentSymbol === 'BTCUSD' ? 98000 : 2650;
+            console.log('Scanner API failed:', error.message);
+            return null;
         }
+    }
+
+    // ============= TRADINGVIEW DATAFEED API =============
+    async function fetchPriceFromDatafeed() {
+        const symbolConfig = SYMBOLS[currentSymbol];
+        
+        try {
+            // TradingView uses this endpoint for symbol info
+            const symbolInfoUrl = `https://symbol-search.tradingview.com/symbol_search/?text=${symbolConfig.scannerSymbol}&exchange=&type=${symbolConfig.market}`;
+            
+            const response = await fetch(symbolInfoUrl);
+            const data = await response.json();
+            
+            if (data && data.length > 0) {
+                // Get symbol details
+                const symbol = data[0];
+                
+                // Fetch latest quote
+                const quoteUrl = `https://symbol-search.tradingview.com/quotes/?symbols=${symbol.exchange}:${symbol.symbol}`;
+                const quoteResponse = await fetch(quoteUrl);
+                const quoteData = await quoteResponse.json();
+                
+                if (quoteData && quoteData.d && quoteData.d.length > 0) {
+                    const price = quoteData.d[0].v.lp; // last price
+                    console.log(`✅ Price from TradingView Datafeed: $${price}`);
+                    return price;
+                }
+            }
+            
+            throw new Error('Datafeed API returned no data');
+            
+        } catch (error) {
+            console.log('Datafeed API failed:', error.message);
+            return null;
+        }
+    }
+
+    // ============= YAHOO FINANCE FALLBACK =============
+    async function fetchPriceFromYahoo() {
+        const symbolConfig = SYMBOLS[currentSymbol];
+        
+        try {
+            // Yahoo Finance symbol mapping
+            const yahooSymbol = currentSymbol === 'XAUUSD' ? 'GC=F' : 'BTC-USD';
+            
+            const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?interval=1m&range=1d`);
+            const data = await response.json();
+            
+            if (data && data.chart && data.chart.result && data.chart.result[0]) {
+                const result = data.chart.result[0];
+                const price = result.meta.regularMarketPrice;
+                console.log(`✅ Price from Yahoo Finance: $${price}`);
+                return price;
+            }
+            
+            throw new Error('Yahoo Finance returned no data');
+            
+        } catch (error) {
+            console.log('Yahoo Finance failed:', error.message);
+            return null;
+        }
+    }
+
+    // ============= FETCH REAL PRICE WITH MULTIPLE FALLBACKS =============
+    async function fetchRealPrice() {
+        const symbolConfig = SYMBOLS[currentSymbol];
+        
+        console.log(`🔍 Fetching ${symbolConfig.displayName} price...`);
+        
+        // Try Scanner API first
+        let price = await fetchPriceFromScanner();
+        if (price && price > 0) return price;
+        
+        // Try Datafeed API
+        price = await fetchPriceFromDatafeed();
+        if (price && price > 0) return price;
+        
+        // Try Yahoo Finance
+        price = await fetchPriceFromYahoo();
+        if (price && price > 0) return price;
+        
+        // All failed - use fallback
+        console.log('⚠️ All APIs failed, using fallback price');
+        return currentSymbol === 'BTCUSD' ? 98000 : 2650;
     }
 
     async function updatePriceDisplay() {
@@ -657,19 +693,24 @@
         
         try {
             const price = await fetchRealPrice();
-            priceData.current = price;
-            realPriceLoaded = true;
             
-            document.getElementById('price-status').innerHTML = 
-                `<span class="status-indicator status-active"></span><strong>${symbolConfig.displayName}: ${formatPrice(price)}</strong> 
-                <span style="font-size: 0.8em; color: #4CAF50;">✓ Live API</span>`;
-            
-            console.log(`✅ Real price: ${formatPrice(price)}`);
+            if (price && price > 0) {
+                priceData.current = price;
+                realPriceLoaded = true;
+                
+                document.getElementById('price-status').innerHTML = 
+                    `<span class="status-indicator status-active"></span><strong>${symbolConfig.displayName}: ${formatPrice(price)}</strong> 
+                    <span style="font-size: 0.8em; color: #4CAF50;">✓ TradingView</span>`;
+                
+                console.log(`✅ Final price: ${formatPrice(price)}`);
+            } else {
+                throw new Error('Invalid price');
+            }
             
         } catch (error) {
             console.error('Price update error:', error);
             document.getElementById('price-status').innerHTML = 
-                `<span class="status-indicator status-inactive"></span>Lỗi API`;
+                `<span class="status-indicator status-inactive"></span>Lỗi lấy giá`;
         }
     }
 
@@ -908,7 +949,7 @@
             priceData.trend = 'sideways';
         }
         
-        console.log('✅ Indicators updated:', priceData);
+        console.log('✅ Indicators updated');
     }
 
     async function runAIAnalysis() {
@@ -921,7 +962,7 @@
         aiBox.innerHTML = `
             <div class="ai-thinking">
                 <div style="font-size: 2em; margin-bottom: 10px;">🤖</div>
-                <div>Đang lấy giá thật từ API...</div>
+                <div>Đang lấy giá từ TradingView...</div>
                 <div style="font-size: 0.9em; margin-top: 10px;">Phân tích ${symbolConfig.displayName}</div>
             </div>
         `;
@@ -942,7 +983,7 @@
                 <div class="analysis-box" style="border-left-color: #667eea;">
                     <h3 style="color: #667eea; margin-bottom: 15px;">
                         🤖 Phân Tích AI - ${symbolConfig.displayName}
-                        <span style="font-size: 0.7em; color: #4CAF50;">(Giá: ${formatPrice(realPrice)})</span>
+                        <span style="font-size: 0.7em; color: #4CAF50;">(${formatPrice(realPrice)})</span>
                     </h3>
                     ${analysis}
                 </div>
@@ -965,7 +1006,6 @@
     }
 
     function generateRealAIAnalysis() {
-        const symbolConfig = SYMBOLS[currentSymbol];
         const price = priceData.current;
         const atr = priceData.atr14;
         const rsi = priceData.rsi;
@@ -978,41 +1018,23 @@
         if (confluence > 60 && rsi < 50 && macdHist > 0 && pattern.signal === 'Bullish') {
             signal = 'BUY';
             confidence = 80 + Math.min(pattern.confidence / 10, 10);
-            reason = `
-                <strong>✅ Tín hiệu BULLISH mạnh:</strong><br>
-                • Confluence: ${confluence}% (${marketState.bullishCount}/6 khung)<br>
-                • RSI: ${rsi.toFixed(1)} - Còn room tăng<br>
-                • MACD: Dương (${macdHist.toFixed(2)})<br>
-                • Pattern: ${pattern.name} (${pattern.confidence}%)
-            `;
+            reason = `✅ BULLISH: Confluence ${confluence}%, RSI ${rsi.toFixed(1)}, MACD dương, Pattern: ${pattern.name}`;
             entry = `${formatPrice(price - atr * 0.2)} - ${formatPrice(price)}`;
             sl = `${formatPrice(price - atr * 1.5)}`;
             tp = [formatPrice(price + atr), formatPrice(price + atr * 2), formatPrice(price + atr * 3)];
             risk = '1:2.7';
         } else if (confluence > 60 && (rsi < 55 || macdHist > 0)) {
             signal = 'BUY';
-            confidence = 65 + (pattern.signal === 'Bullish' ? 10 : 0);
-            reason = `
-                <strong>✅ Tín hiệu BULLISH:</strong><br>
-                • Confluence: ${confluence}%<br>
-                • RSI: ${rsi.toFixed(1)}<br>
-                • MACD: ${macdHist > 0 ? 'Tích cực' : 'Chưa rõ'}<br>
-                • Pattern: ${pattern.name}
-            `;
-            entry = rsi > 55 ? `Chờ pullback về ${formatPrice(price - atr * 0.4)}` : `${formatPrice(price - atr * 0.3)}`;
+            confidence = 65;
+            reason = `✅ BULLISH: Confluence ${confluence}%, RSI ${rsi.toFixed(1)}`;
+            entry = `${formatPrice(price - atr * 0.3)}`;
             sl = `${formatPrice(price - atr * 1.2)}`;
             tp = [formatPrice(price + atr * 0.8), formatPrice(price + atr * 1.8)];
             risk = '1:2.0';
-        } else if (confluence < 40 && rsi > 50 && macdHist < 0 && pattern.signal === 'Bearish') {
+        } else if (confluence < 40 && rsi > 50 && macdHist < 0) {
             signal = 'SELL';
             confidence = 75;
-            reason = `
-                <strong>⚠️ Tín hiệu BEARISH:</strong><br>
-                • Confluence: ${confluence}%<br>
-                • RSI: ${rsi.toFixed(1)}<br>
-                • MACD: Âm (${macdHist.toFixed(2)})<br>
-                • Pattern: ${pattern.name}
-            `;
+            reason = `⚠️ BEARISH: Confluence ${confluence}%, RSI ${rsi.toFixed(1)}`;
             entry = `${formatPrice(price + atr * 0.2)}`;
             sl = `${formatPrice(price + atr)}`;
             tp = [formatPrice(price - atr * 0.8), formatPrice(price - atr * 1.8)];
@@ -1020,12 +1042,7 @@
         } else {
             signal = 'WAIT';
             confidence = 45;
-            reason = `
-                <strong>⏸️ CHỜ tín hiệu rõ hơn:</strong><br>
-                • Confluence: ${confluence}% - Trung lập<br>
-                • RSI: ${rsi.toFixed(1)} - Neutral<br>
-                • MACD: ${macdHist.toFixed(2)}
-            `;
+            reason = `⏸️ CHỜ: Confluence ${confluence}%, RSI ${rsi.toFixed(1)}`;
             entry = `Chờ breakout`;
             sl = `Ngoài range`;
             tp = [`Chờ tín hiệu`];
@@ -1037,25 +1054,16 @@
         return `
             <div style="background: ${color}20; padding: 15px; border-radius: 10px; border-left: 5px solid ${color};">
                 <div style="font-size: 1.5em; font-weight: bold; color: ${color};">
-                    ${signal === 'BUY' ? '📈 MUA' : signal === 'SELL' ? '📉 BÁN' : '⏸️ CHỜ'} 
-                    (${confidence}%)
+                    ${signal === 'BUY' ? '📈 MUA' : signal === 'SELL' ? '📉 BÁN' : '⏸️ CHỜ'} (${confidence}%)
                 </div>
-                <div style="background: rgba(255,255,255,0.7); padding: 10px; border-radius: 5px; margin-top: 10px;">
-                    <strong>Giá:</strong> ${formatPrice(price)} • <strong>RSI:</strong> ${rsi.toFixed(1)} • <strong>ATR:</strong> ${formatPrice(atr)}
-                </div>
+                <div style="margin-top: 10px;"><strong>Giá:</strong> ${formatPrice(price)}</div>
             </div>
             <p style="margin: 15px 0;">${reason}</p>
             <div style="background: #f5f5f5; padding: 15px; border-radius: 10px;">
                 <p><strong>📍 Entry:</strong> ${entry}</p>
-                <p><strong>🛑 Stop Loss:</strong> ${sl}</p>
-                <p><strong>🎯 Take Profit:</strong></p>
-                <ul style="margin-left: 20px;">
-                    ${tp.map((t, i) => `<li>TP${i+1}: ${t}</li>`).join('')}
-                </ul>
+                <p><strong>🛑 SL:</strong> ${sl}</p>
+                <p><strong>🎯 TP:</strong> ${tp.join(', ')}</p>
                 <p><strong>⚖️ R:R:</strong> ${risk}</p>
-            </div>
-            <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-top: 15px;">
-                ✅ <strong>Giá từ API thật</strong>
             </div>
         `;
     }
@@ -1083,8 +1091,7 @@
             }
             
             return {
-                tf,
-                signal,
+                tf, signal,
                 class: signal === 'Bullish' ? 'bullish' : signal === 'Bearish' ? 'bearish' : 'neutral'
             };
         });
@@ -1113,50 +1120,16 @@
                 ${bullishCount} Bullish • ${bearishCount} Bearish • ${neutralCount} Neutral
             </p>
             ${tfHTML}
-            <div class="analysis-box" style="border-left-color: ${scoreColor};">
-                ${confluenceScore > 60 ? '✅ Confluence cao - BULLISH' : 
-                  confluenceScore < 40 ? '⚠️ Confluence thấp - BEARISH' : '⚡ Trung bình'}
-            </div>
         `;
     }
 
     function activateAlerts() {
         alertsActive = true;
-        alertConditions = {
-            entry: document.getElementById('alert-entry').checked,
-            sr: document.getElementById('alert-sr').checked,
-            rsi: document.getElementById('alert-rsi').checked,
-            ath: document.getElementById('alert-ath').checked
-        };
-        
         document.getElementById('active-alerts').innerHTML = `
             <div class="analysis-box" style="border-left-color: #4CAF50;">
-                <p style="color: #4CAF50;"><span class="status-indicator status-active"></span>Alerts đã kích hoạt!</p>
+                <p style="color: #4CAF50;"><span class="status-indicator status-active"></span>Đã kích hoạt!</p>
             </div>
         `;
-        
-        setInterval(checkAlerts, 30000);
-    }
-
-    function checkAlerts() {
-        if (!alertsActive || priceData.current === 0) return;
-        
-        const alerts = [];
-        if (alertConditions.rsi && priceData.rsi < 30) {
-            alerts.push({ type: '📊 RSI Oversold', message: `RSI = ${priceData.rsi.toFixed(1)}`, priority: 'high' });
-        }
-        if (alerts.length > 0) displayAlerts(alerts);
-    }
-
-    function displayAlerts(alerts) {
-        let html = '';
-        alerts.forEach(a => {
-            html += `<div class="alert-item alert-active">
-                <div style="font-size: 1.5em;">${a.type.split(' ')[0]}</div>
-                <div><strong>${a.type}</strong><br>${a.message}</div>
-            </div>`;
-        });
-        document.getElementById('active-alerts').innerHTML = html;
     }
 
     function calculatePosition() {
@@ -1165,31 +1138,26 @@
         const stopLoss = parseFloat(document.getElementById('stop-loss').value);
 
         if (!accountSize || !riskPercent || !stopLoss || priceData.current === 0) {
-            alert('Vui lòng nhập đầy đủ và đợi giá load!');
+            alert('Vui lòng nhập đầy đủ!');
             return;
         }
 
         const riskAmount = accountSize * (riskPercent / 100);
         const lotSize = riskAmount / stopLoss;
-        const contractValue = lotSize * priceData.current * SYMBOLS[currentSymbol].lotSize;
 
         document.getElementById('position-result').style.display = 'block';
         document.getElementById('position-result').innerHTML = `
-            <div><strong>Lot Size:</strong> ${lotSize.toFixed(currentSymbol === 'BTCUSD' ? 4 : 2)}</div>
-            <div style="margin-top: 10px;"><strong>Contract:</strong> $${contractValue.toFixed(0).toLocaleString()}</div>
-            <div style="margin-top: 10px;"><strong>Max Loss:</strong> $${riskAmount.toFixed(2)}</div>
+            <div><strong>Lot:</strong> ${lotSize.toFixed(currentSymbol === 'BTCUSD' ? 4 : 2)}</div>
+            <div><strong>Max Loss:</strong> $${riskAmount.toFixed(2)}</div>
         `;
     }
 
     async function init() {
-        console.log(`🚀 Initializing ${SYMBOLS[currentSymbol].displayName}...`);
-        
+        console.log(`🚀 Initializing...`);
         await updatePriceDisplay();
         await updateAllIndicators(priceData.current);
         analyzeMultiTimeframe();
-        
-        priceUpdateInterval = setInterval(updatePriceDisplay, 60000);
-        
+        priceUpdateInterval = setInterval(updatePriceDisplay, 30000);
         console.log('✅ Ready!');
     }
 

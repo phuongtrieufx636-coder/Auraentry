@@ -1146,12 +1146,13 @@
             }
         }
         
+        // RSI/EMA Cross Score (0-20 points)
         maxScore += 20;
         if (indicators.isCross) {
-            score += 20; details.push('✓✓ EMA/LWMA Cross!');
-        } else if ((signal === 'BUY' && indicators.ema > indicators.lwma) || 
-                  (signal === 'SELL' && indicators.ema < indicators.lwma)) {
-            score += 10; details.push('✓ EMA/LWMA Aligned');
+            score += 20; details.push('✓✓ RSI/EMA Cross!');
+        } else if ((signal === 'BUY' && indicators.rsi > indicators.ema && indicators.rsi > indicators.lwma) || 
+                  (signal === 'SELL' && indicators.rsi < indicators.ema && indicators.rsi < indicators.lwma)) {
+            score += 10; details.push('✓ RSI/EMA Above LWMA');
         }
         
         maxScore += 10;
@@ -1513,24 +1514,40 @@
         let signal = 'NEUTRAL';
         let signalStrength = 0;
         
-        const emaCrossAbove = prevEMA <= prevLWMA && currentEMA > currentLWMA;
-        const emaCrossBelow = prevEMA >= prevLWMA && currentEMA < currentLWMA;
+        // NEW LOGIC: RSI(14) và EMA(9) cắt nhau trên/dưới LWMA(45)
+        const prevRSI = rsiValues[rsiValues.length - 2];
         
-        if (emaCrossAbove) {
+        // Kiểm tra RSI và EMA cắt nhau
+        const rsiCrossEmaUp = prevRSI <= prevEMA && currentRSI > currentEMA;
+        const rsiCrossEmaDown = prevRSI >= prevEMA && currentRSI < currentEMA;
+        
+        // Kiểm tra vị trí so với LWMA
+        const aboveLWMA = currentRSI > currentLWMA && currentEMA > currentLWMA;
+        const belowLWMA = currentRSI < currentLWMA && currentEMA < currentLWMA;
+        
+        if (rsiCrossEmaUp && aboveLWMA) {
+            // RSI cắt lên EMA phía TRÊN LWMA = BUY mạnh
             signal = 'BUY';
-            signalStrength = Math.abs(currentEMA - currentLWMA);
-        } else if (emaCrossBelow) {
+            signalStrength = Math.abs(currentRSI - currentEMA);
+        } else if (rsiCrossEmaDown && belowLWMA) {
+            // RSI cắt xuống EMA phía DƯỚI LWMA = SELL mạnh
             signal = 'SELL';
-            signalStrength = Math.abs(currentEMA - currentLWMA);
+            signalStrength = Math.abs(currentRSI - currentEMA);
+        } else if (aboveLWMA && currentRSI > currentEMA) {
+            // Cả RSI và EMA đều trên LWMA, RSI > EMA = BUY yếu hơn
+            signal = 'BUY';
+            signalStrength = (currentRSI - currentEMA) * 0.5;
+        } else if (belowLWMA && currentRSI < currentEMA) {
+            // Cả RSI và EMA đều dưới LWMA, RSI < EMA = SELL yếu hơn
+            signal = 'SELL';
+            signalStrength = (currentEMA - currentRSI) * 0.5;
         } else {
-            if (currentEMA > currentLWMA) {
-                signal = 'BUY';
-                signalStrength = (currentEMA - currentLWMA) * 0.5;
-            } else if (currentEMA < currentLWMA) {
-                signal = 'SELL';
-                signalStrength = (currentLWMA - currentEMA) * 0.5;
-            }
+            // Không có tín hiệu rõ ràng
+            signal = 'NEUTRAL';
+            signalStrength = 0;
         }
+        
+        const isCross = rsiCrossEmaUp || rsiCrossEmaDown;
         
         // Use the LAST price from generated data as current market price
         // This ensures consistency between price display and analysis
@@ -1539,7 +1556,7 @@
         
         const indicators = {
             rsi: currentRSI, ema: currentEMA, lwma: currentLWMA,
-            isCross: emaCrossAbove || emaCrossBelow,
+            isCross: isCross,
             macdHistogram: macd.histogram, bb: bb, stochastic: stochastic,
             adx: adx, cci: cci, volumeProfile: volumeProfile,
             currentPrice: currentMarketPrice
@@ -1549,6 +1566,7 @@
         const entryData = calculateSmartEntry(signal, currentMarketPrice, prices, rsiValues, atr, data.high, data.low, confluence);
         
         const marketTPSL = calculateAdvancedTPSL(signal, entryData.marketEntry, 'MARKET', prices, rsiValues, atr, data.high, data.low);
+
         const limitTPSL = calculateAdvancedTPSL(signal, entryData.limitEntry, 'LIMIT', prices, rsiValues, atr, data.high, data.low);
         const stopTPSL = calculateAdvancedTPSL(signal, entryData.stopEntry, 'STOP', prices, rsiValues, atr, data.high, data.low);
         
@@ -1561,7 +1579,7 @@
             signal: signal, signalStrength: signalStrength, confluence: confluence,
             currentPrice: currentMarketPrice.toFixed(assetConfig[currentAsset].priceDecimals),
             entryData: entryData, marketTPSL: marketTPSL, limitTPSL: limitTPSL, stopTPSL: stopTPSL,
-            isCross: emaCrossAbove || emaCrossBelow
+            isCross: isCross
         };
     }
 

@@ -1491,6 +1491,12 @@
         const data = await fetchTradingViewData(tf.interval);
         const prices = data.prices;
         
+        // Log price range
+        const priceMin = Math.min(...prices);
+        const priceMax = Math.max(...prices);
+        const priceAvg = prices.reduce((a,b) => a+b, 0) / prices.length;
+        console.log(`[${tf.label}] Price range: ${priceMin.toFixed(2)} - ${priceMax.toFixed(2)}, Avg: ${priceAvg.toFixed(2)}`);
+        
         const rsiValues = calculateRSI(prices, 14);
         if (!rsiValues || rsiValues.length < 50) return null;
         
@@ -1503,6 +1509,9 @@
         const currentLWMA = lwmaOnRsi[lwmaOnRsi.length - 1];
         const prevEMA = emaOnRsi[emaOnRsi.length - 2];
         const prevLWMA = lwmaOnRsi[lwmaOnRsi.length - 2];
+        
+        // Debug log
+        console.log(`[${tf.label}] RSI=${currentRSI.toFixed(2)}, EMA=${currentEMA.toFixed(2)}, LWMA=${currentLWMA.toFixed(2)}`);
         
         const macd = calculateMACD(prices);
         const bb = calculateBollingerBands(prices);

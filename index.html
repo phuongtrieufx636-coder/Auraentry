@@ -592,7 +592,7 @@
 
     // ==================== ASSET SWITCHING ====================
     
-    function switchAsset(asset) {
+    async function switchAsset(asset) {
         if (currentAsset === asset) return;
         
         currentAsset = asset;
@@ -605,9 +605,14 @@
         priceHistory = [];
         tickCount = 0;
         
-        // Update immediately
-        updatePriceRealtime();
-        analyzeMarket();
+        // Update price first and wait for it
+        await updatePriceRealtime();
+        
+        // Small delay to ensure price is set
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Then analyze with new price
+        await analyzeMarket();
     }
 
     // ==================== HỆ THỐNG LẤY GIÁ REAL-TIME ====================
@@ -1001,7 +1006,7 @@
         return parseInt(interval) * 60;
     }
 
-    async function generateRealisticData(currentPrice, interval, limit) {
+    async function generateRealisticData(basePrice, interval, limit) {
         const prices = [];
         const high = [];
         const low = [];
@@ -1015,11 +1020,18 @@
             baseVolatility *= 20; // Bitcoin is much more volatile
         }
         
-        let price = currentPrice * (0.98 + Math.random() * 0.04);
+        // IMPORTANT: Use basePrice parameter but verify it matches current asset
+        const expectedPrice = assetConfig[currentAsset].basePrice;
+        const actualBasePrice = (Math.abs(basePrice - expectedPrice) < expectedPrice * 0.5) ? basePrice : currentPrice;
+        
+        // Log to verify we're using correct base price
+        console.log(`📊 Generating ${currentAsset} data: base=$${actualBasePrice.toFixed(2)}, volatility=${baseVolatility.toFixed(2)}`);
+        
+        let price = actualBasePrice * (0.98 + Math.random() * 0.04);
         
         for (let i = 0; i < limit; i++) {
             const progress = i / limit;
-            const trendTowardsCurrent = (currentPrice - price) * 0.02;
+            const trendTowardsCurrent = (actualBasePrice - price) * 0.02;
             const cyclicalWave = Math.sin(i / 15) * baseVolatility * 0.5;
             const randomWalk = (Math.random() - 0.5) * baseVolatility;
             const momentum = (prices.length > 1) ? (prices[prices.length - 1] - prices[prices.length - 2]) * 0.3 : 0;
@@ -1028,11 +1040,11 @@
             
             if (i >= limit - 3) {
                 const convergence = 1 - (limit - i) / 3;
-                price = price * (1 - convergence) + currentPrice * convergence;
+                price = price * (1 - convergence) + actualBasePrice * convergence;
             }
             
             if (i === limit - 1) {
-                price = currentPrice;
+                price = actualBasePrice;
             }
             
             const wickSize = baseVolatility * (0.3 + Math.random() * 0.3);
@@ -1049,6 +1061,7 @@
     }
 
     async function fetchTradingViewData(interval, limit = 200) {
+        // Always use the current price of the selected asset
         return await generateRealisticData(currentPrice, interval, limit);
     }
 
@@ -1473,6 +1486,7 @@
     // ==================== MAIN ANALYSIS ====================
 
     async function analyzeTimeframe(tf) {
+        // Always get fresh data for current asset
         const data = await fetchTradingViewData(tf.interval);
         const prices = data.prices;
         
@@ -1518,6 +1532,8 @@
             }
         }
         
+        // Use the LAST price from generated data as current market price
+        // This ensures consistency between price display and analysis
         const currentMarketPrice = prices[prices.length - 1];
         const atr = calculateATR(data.high, data.low, prices, 14);
         
@@ -1553,6 +1569,9 @@
         document.getElementById('loadingIndicator').style.display = 'block';
         document.getElementById('analysisGrid').innerHTML = '';
         document.getElementById('summarySection').style.display = 'none';
+        
+        // Log which asset we're analyzing
+        console.log(`🔍 Analyzing ${currentAsset} at price: $${currentPrice.toFixed(2)}`);
         
         const results = [];
         

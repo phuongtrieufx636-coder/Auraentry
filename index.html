@@ -472,16 +472,183 @@
         margin-top: 10px;
         opacity: 0.9;
     }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        overflow-y: auto;
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 2% auto;
+        padding: 30px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 800px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .modal-header h2 {
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .close-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .close-btn:hover {
+        background: #c0392b;
+        transform: rotate(90deg);
+    }
+    
+    .input-group {
+        margin: 15px 0;
+    }
+    
+    .input-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2c3e50;
+    }
+    
+    .input-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        resize: vertical;
+        min-height: 150px;
+    }
+    
+    .input-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .input-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+    
+    .help-text {
+        font-size: 0.85em;
+        color: #666;
+        margin-top: 5px;
+        font-style: italic;
+    }
+    
+    .example-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 4px solid #667eea;
+    }
+    
+    .example-box pre {
+        margin: 5px 0;
+        font-size: 12px;
+        overflow-x: auto;
+    }
 </style>
 ```
 
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Multi-Asset Real-Time Analysis - Smart Entry</h1>
+    <!-- Modal for Manual Data Input -->
+    <div id="manualDataModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Nhập Dữ Liệu từ MT5</h2>
+                <button class="close-btn" onclick="closeManualDataInput()">×</button>
+            </div>
 
 ```
+        <div class="input-group">
+            <label for="timeframeSelect">Chọn Khung Thời Gian:</label>
+            <select id="timeframeSelect">
+                <option value="M1">M1 (1 Phút)</option>
+                <option value="M5">M5 (5 Phút)</option>
+                <option value="M15">M15 (15 Phút)</option>
+                <option value="M30">M30 (30 Phút)</option>
+                <option value="H1" selected>H1 (1 Giờ)</option>
+                <option value="H4">H4 (4 Giờ)</option>
+                <option value="D1">D1 (1 Ngày)</option>
+            </select>
+        </div>
+        
+        <div class="example-box">
+            <strong>📝 Hướng dẫn lấy data từ MT5:</strong>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li>Mở MT5 → Chọn cặp tiền (BTC/USD hoặc XAU/USD)</li>
+                <li>Chọn timeframe cần phân tích</li>
+                <li>Nhấn F2 hoặc View → Data Window</li>
+                <li>Copy giá Close của 200 nến gần nhất (từ cũ → mới)</li>
+                <li>Paste vào ô bên dưới (mỗi giá 1 dòng)</li>
+            </ol>
+        </div>
+        
+        <div class="input-group">
+            <label for="priceData">Dán Giá Close (200 nến, mỗi dòng 1 giá):</label>
+            <textarea id="priceData" placeholder="90312.86
+```
+
+90315.23
+90320.45
+…
+(200 dòng)”></textarea>
+<div class="help-text">
+💡 Paste giá Close từ cũ đến mới. Nến cuối cùng = nến hiện tại.
+</div>
+</div>
+
+```
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn" onclick="parseAndAnalyzeManualData()" style="flex: 1;">
+                ✅ Phân Tích Data
+            </button>
+            <button class="btn" onclick="closeManualDataInput()" style="flex: 1; background: #95a5a6;">
+                ❌ Hủy
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1>📊 Multi-Asset Real-Time Analysis - Smart Entry</h1>
+        
         <div class="asset-selector">
             <button class="asset-btn active" onclick="switchAsset('XAUUSD')" id="btnXAUUSD">
                 🥇 XAU/USD (Gold)
@@ -520,10 +687,17 @@
             <button class="btn" onclick="toggleAutoRefresh()" id="autoRefreshBtn" style="margin-left: 10px;">
                 ⏸️ Tạm dừng
             </button>
+            <button class="btn" onclick="openManualDataInput()" id="manualDataBtn" style="margin-left: 10px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                📊 Nhập Data MT5
+            </button>
+            <button class="btn" onclick="toggleDataMode()" id="dataModeBtn" style="margin-left: 10px; display: none; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
+                🔄 Về Simulation
+            </button>
         </div>
         <div class="refresh-status">
             <div><span class="live-indicator"></span> Cập nhật giá: <strong>1 giây</strong></div>
             <div>Phân tích: <strong id="analysisInterval">30 giây</strong></div>
+            <div id="dataMode" style="margin-top: 5px; font-weight: bold; color: #667eea;">Mode: Simulation</div>
         </div>
     </div>
     
@@ -569,6 +743,10 @@
     let priceSource = 'Initializing...';
     let isAutoRefreshEnabled = true;
     let priceHistory = [];
+    
+    // Manual data mode
+    let useManualData = false;
+    let manualPriceData = {};  // {timeframe: [prices]}
 
     // Asset configurations
     const assetConfig = {
@@ -1061,7 +1239,32 @@
     }
 
     async function fetchTradingViewData(interval, limit = 200) {
-        // Always use the current price of the selected asset
+        // Check if we have manual data for this timeframe
+        const tfName = timeframes.find(tf => tf.interval === interval)?.name;
+        
+        if (useManualData && tfName && manualPriceData[tfName]) {
+            console.log(`📊 Using MANUAL data for ${tfName} (${manualPriceData[tfName].length} candles)`);
+            
+            const prices = manualPriceData[tfName];
+            const high = [];
+            const low = [];
+            const timestamp = [];
+            
+            // Generate high/low based on prices with small wicks
+            for (let i = 0; i < prices.length; i++) {
+                const wickSize = prices[i] * 0.001; // 0.1% wick
+                high.push(prices[i] + wickSize);
+                low.push(prices[i] - wickSize);
+                
+                const intervalSeconds = getIntervalSeconds(interval);
+                timestamp.push(Date.now() / 1000 - (prices.length - i) * intervalSeconds);
+            }
+            
+            return { prices, high, low, timestamp };
+        }
+        
+        // Otherwise use generated data
+        console.log(`🤖 Using SIMULATION data for interval ${interval}`);
         return await generateRealisticData(currentPrice, interval, limit);
     }
 
@@ -1807,6 +2010,102 @@
     window.onbeforeunload = function() {
         stopAutoRefresh();
     };
+    
+    // ==================== MANUAL DATA INPUT ====================
+    
+    function openManualDataInput() {
+        document.getElementById('manualDataModal').style.display = 'block';
+    }
+    
+    function closeManualDataInput() {
+        document.getElementById('manualDataModal').style.display = 'none';
+    }
+    
+    function parseAndAnalyzeManualData() {
+        const timeframe = document.getElementById('timeframeSelect').value;
+        const priceDataText = document.getElementById('priceData').value.trim();
+        
+        if (!priceDataText) {
+            alert('❌ Vui lòng nhập dữ liệu giá!');
+            return;
+        }
+        
+        // Parse price data
+        const lines = priceDataText.split('\n').map(line => line.trim()).filter(line => line);
+        const prices = [];
+        
+        for (let line of lines) {
+            // Remove any commas or spaces
+            const cleanLine = line.replace(/,/g, '').trim();
+            const price = parseFloat(cleanLine);
+            
+            if (isNaN(price) || price <= 0) {
+                alert(`❌ Dòng không hợp lệ: "${line}"\nVui lòng chỉ nhập số.`);
+                return;
+            }
+            
+            prices.push(price);
+        }
+        
+        if (prices.length < 50) {
+            alert(`❌ Cần ít nhất 50 nến!\nBạn đã nhập: ${prices.length} nến.`);
+            return;
+        }
+        
+        console.log(`✅ Parsed ${prices.length} candles for ${timeframe}`);
+        console.log(`Price range: ${Math.min(...prices).toFixed(2)} - ${Math.max(...prices).toFixed(2)}`);
+        
+        // Store manual data
+        manualPriceData[timeframe] = prices;
+        useManualData = true;
+        
+        // Update current price to last candle
+        currentPrice = prices[prices.length - 1];
+        bidPrice = currentPrice - 0.5;
+        askPrice = currentPrice + 0.5;
+        
+        // Update UI
+        updatePriceDisplay();
+        updateDataModeDisplay();
+        
+        // Close modal
+        closeManualDataInput();
+        
+        // Run analysis
+        alert(`✅ Đã load ${prices.length} nến cho ${timeframe}!\n\nĐang phân tích...`);
+        analyzeMarket();
+    }
+    
+    function toggleDataMode() {
+        useManualData = false;
+        manualPriceData = {};
+        updateDataModeDisplay();
+        alert('🔄 Đã chuyển về Simulation Mode.\n\nClick "🔄 Cập Nhật Phân Tích" để phân tích lại.');
+    }
+    
+    function updateDataModeDisplay() {
+        const modeText = document.getElementById('dataMode');
+        const toggleBtn = document.getElementById('dataModeBtn');
+        
+        if (useManualData) {
+            const timeframes = Object.keys(manualPriceData).join(', ');
+            modeText.innerHTML = `Mode: <span style="color: #f5576c;">MT5 Data (${timeframes})</span>`;
+            modeText.style.color = '#f5576c';
+            toggleBtn.style.display = 'inline-block';
+        } else {
+            modeText.innerHTML = 'Mode: <span style="color: #667eea;">Simulation</span>';
+            modeText.style.color = '#667eea';
+            toggleBtn.style.display = 'none';
+        }
+    }
+    
+    // Click outside modal to close
+    window.onclick = function(event) {
+        const modal = document.getElementById('manualDataModal');
+        if (event.target === modal) {
+            closeManualDataInput();
+        }
+    }
 </script>
 
 </body>

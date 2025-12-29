@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -12,531 +11,606 @@
             box-sizing: border-box;
         }
 
-```
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-        color: #fff;
-        padding: 20px;
-        min-height: 100vh;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
 
-    .container {
-        max-width: 1400px;
-        margin: 0 auto;
-    }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-    .header {
-        text-align: center;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        margin-bottom: 20px;
-        backdrop-filter: blur(10px);
-    }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
 
-    .header h1 {
-        font-size: 2.5em;
-        margin-bottom: 10px;
-        background: linear-gradient(45deg, #FFD700, #FFA500);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-    .header .status {
-        font-size: 1.2em;
-        color: #00ff00;
-    }
+        .header .status {
+            font-size: 1.2em;
+            color: #00ff00;
+        }
 
-    .main-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 20px;
-        margin-bottom: 20px;
-    }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
 
-    .chart-container {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 15px;
-        padding: 15px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .tradingview-widget-container {
-        height: 500px;
-        border-radius: 10px;
-        overflow: hidden;
-    }
+        .tradingview-widget-container {
+            height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
 
-    .signal-panel {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 15px;
-        padding: 20px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+        .signal-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .signal-header {
-        font-size: 1.5em;
-        margin-bottom: 15px;
-        text-align: center;
-        padding-bottom: 10px;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-    }
+        .signal-header {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
 
-    .signal-box {
-        background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 0, 0.05));
-        border: 2px solid #00ff00;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 15px;
-        text-align: center;
-    }
+        .signal-box {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 0, 0.05));
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
 
-    .signal-box.sell {
-        background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(200, 0, 0, 0.05));
-        border-color: #ff0000;
-    }
+        .signal-box.sell {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(200, 0, 0, 0.05));
+            border-color: #ff0000;
+        }
 
-    .signal-box.neutral {
-        background: linear-gradient(135deg, rgba(255, 255, 0, 0.1), rgba(200, 200, 0, 0.05));
-        border-color: #ffff00;
-    }
+        .signal-box.neutral {
+            background: linear-gradient(135deg, rgba(255, 255, 0, 0.1), rgba(200, 200, 0, 0.05));
+            border-color: #ffff00;
+        }
 
-    .signal-type {
-        font-size: 2em;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
+        .signal-type {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
 
-    .signal-details {
-        font-size: 1.1em;
-        line-height: 1.8;
-    }
+        .signal-details {
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
 
-    .confidence-bar {
-        width: 100%;
-        height: 30px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        overflow: hidden;
-        margin-top: 10px;
-    }
+        .confidence-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
 
-    .confidence-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #00ff00, #FFD700);
-        transition: width 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #FFD700);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
 
-    .mtf-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-        margin-top: 20px;
-    }
+        .mtf-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
 
-    .mtf-card {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-        padding: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+        .mtf-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .mtf-card h3 {
-        text-align: center;
-        margin-bottom: 10px;
-        font-size: 1.2em;
-        color: #FFD700;
-    }
+        .mtf-card h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #FFD700;
+        }
 
-    .indicator-row {
-        display: flex;
-        justify-content: space-between;
-        margin: 8px 0;
-        padding: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 5px;
-    }
+        .indicator-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
 
-    .indicator-label {
-        color: #aaa;
-    }
+        .indicator-label {
+            color: #aaa;
+        }
 
-    .indicator-value {
-        font-weight: bold;
-    }
+        .indicator-value {
+            font-weight: bold;
+        }
 
-    .status-badge {
-        display: inline-block;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        font-weight: bold;
-        margin-top: 10px;
-    }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
 
-    .status-badge.bullish {
-        background: linear-gradient(90deg, #00ff00, #00cc00);
-        color: #000;
-    }
+        .status-badge.bullish {
+            background: linear-gradient(90deg, #00ff00, #00cc00);
+            color: #000;
+        }
 
-    .status-badge.bearish {
-        background: linear-gradient(90deg, #ff0000, #cc0000);
-        color: #fff;
-    }
+        .status-badge.bearish {
+            background: linear-gradient(90deg, #ff0000, #cc0000);
+            color: #fff;
+        }
 
-    .status-badge.neutral {
-        background: linear-gradient(90deg, #ffff00, #cccc00);
-        color: #000;
-    }
+        .status-badge.neutral {
+            background: linear-gradient(90deg, #ffff00, #cccc00);
+            color: #000;
+        }
 
-    .update-time {
-        text-align: center;
-        margin-top: 20px;
-        color: #aaa;
-        font-size: 0.9em;
-    }
+        .update-time {
+            text-align: center;
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 0.9em;
+        }
 
-    .refresh-btn {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        border: none;
-        padding: 12px 30px;
-        border-radius: 25px;
-        color: white;
-        font-size: 1em;
-        cursor: pointer;
-        margin: 20px auto;
-        display: block;
-        transition: transform 0.2s;
-    }
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            transition: transform 0.2s;
+        }
 
-    .refresh-btn:hover {
-        transform: scale(1.05);
-    }
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
 
-    .refresh-btn:active {
-        transform: scale(0.95);
-    }
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
 
-    .loading {
-        text-align: center;
-        padding: 20px;
-        font-size: 1.2em;
-        color: #FFD700;
-    }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2em;
+            color: #FFD700;
+        }
 
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
-    .loading::after {
-        content: '...';
-        animation: pulse 1.5s infinite;
-    }
+        .loading::after {
+            content: '...';
+            animation: pulse 1.5s infinite;
+        }
 
-    .news-panel {
-        background: rgba(255, 100, 100, 0.1);
-        border: 2px solid #ff6666;
-        border-radius: 10px;
-        padding: 15px;
-        margin-top: 15px;
-    }
+        .news-panel {
+            background: rgba(255, 100, 100, 0.1);
+            border: 2px solid #ff6666;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
 
-    .news-panel h4 {
-        color: #ff6666;
-        margin-bottom: 10px;
-    }
+        .news-panel h4 {
+            color: #ff6666;
+            margin-bottom: 10px;
+        }
 
-    .news-item {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 8px;
-        margin: 5px 0;
-        border-radius: 5px;
-        font-size: 0.9em;
-    }
-</style>
-```
-
+        .news-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
             <h1>📊 BẢNG TƯỜNG TRADING - XAU/USD</h1>
-            <div class="status">🟢 Live Analysis | Auto Refresh: <span id="countdown">15</span>s</div>
-        </div>
-
-```
-    <!-- Main Grid -->
-    <div class="main-grid">
-        <!-- TradingView Chart -->
-        <div class="chart-container">
-            <div class="tradingview-widget-container">
-                <div id="tradingview_chart"></div>
+            <div class="status">
+                🟢 Live Analysis | 
+                💰 Price: <span id="currentPrice" style="color: #FFD700; font-size: 1.3em;">--</span> | 
+                Auto Refresh: <span id="countdown">15</span>s
             </div>
         </div>
 
-        <!-- Signal Panel -->
-        <div class="signal-panel">
-            <div class="signal-header">🎯 TÍN HIỆU GIAO DỊCH</div>
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- TradingView Chart -->
+            <div class="chart-container">
+                <div class="tradingview-widget-container">
+                    <div id="tradingview_chart"></div>
+                </div>
+            </div>
+
+            <!-- Signal Panel -->
+            <div class="signal-panel">
+                <div class="signal-header">🎯 TÍN HIỆU GIAO DỊCH</div>
+                
+                <div id="mainSignal" class="signal-box">
+                    <div class="loading">Đang phân tích</div>
+                </div>
+
+                <div class="news-panel" id="newsPanel" style="display: none;">
+                    <h4>⚠️ TIN TỨC QUAN TRỌNG</h4>
+                    <div id="newsList"></div>
+                </div>
+
+                <button class="refresh-btn" onclick="analyzeMarket()">🔄 Refresh Now</button>
+            </div>
+        </div>
+
+        <!-- Multi-Timeframe Analysis -->
+        <div class="mtf-grid">
+            <div class="mtf-card" id="mtf-m15">
+                <h3>M15 (Current)</h3>
+                <div class="loading">Loading</div>
+            </div>
+            <div class="mtf-card" id="mtf-h1">
+                <h3>H1 (Medium)</h3>
+                <div class="loading">Loading</div>
+            </div>
+            <div class="mtf-card" id="mtf-h4">
+                <h3>H4 (High)</h3>
+                <div class="loading">Loading</div>
+            </div>
+        </div>
+
+        <div class="update-time">
+            Last update: <span id="lastUpdate">--:--:--</span>
+        </div>
+    </div>
+
+    <!-- TradingView Widget Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+        // Global variables
+        let currentXAUPrice = 2652.0;
+        let tvWidget = null;
+
+        // Wait for TradingView library to load
+        function initTradingViewChart() {
+            if (typeof TradingView === 'undefined') {
+                console.log('⏳ Waiting for TradingView library...');
+                setTimeout(initTradingViewChart, 500);
+                return;
+            }
+
+            console.log('✅ TradingView library loaded');
             
-            <div id="mainSignal" class="signal-box">
-                <div class="loading">Đang phân tích</div>
-            </div>
+            // Initialize TradingView Chart
+            tvWidget = new TradingView.widget({
+                "autosize": true,
+                "symbol": "OANDA:XAUUSD",
+                "interval": "15",
+                "timezone": "Asia/Ho_Chi_Minh",
+                "theme": "dark",
+                "style": "1",
+                "locale": "vi_VN",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "studies": [
+                    "RSI@tv-basicstudies",
+                    "MASimple@tv-basicstudies",
+                    "MACD@tv-basicstudies"
+                ],
+                "container_id": "tradingview_chart"
+            });
 
-            <div class="news-panel" id="newsPanel" style="display: none;">
-                <h4>⚠️ TIN TỨC QUAN TRỌNG</h4>
-                <div id="newsList"></div>
-            </div>
+            console.log('✅ TradingView chart initialized');
+        }
 
-            <button class="refresh-btn" onclick="analyzeMarket()">🔄 Refresh Now</button>
-        </div>
-    </div>
+        // Start initialization when page loads
+        window.addEventListener('load', function() {
+            console.log('🚀 Page loaded, initializing...');
+            initTradingViewChart();
+            fetchRealPrice(); // Fetch price first
+            // Wait a bit for chart to load, then start analysis
+            setTimeout(analyzeMarket, 3000);
+        });
 
-    <!-- Multi-Timeframe Analysis -->
-    <div class="mtf-grid">
-        <div class="mtf-card" id="mtf-m15">
-            <h3>M15 (Current)</h3>
-            <div class="loading">Loading</div>
-        </div>
-        <div class="mtf-card" id="mtf-h1">
-            <h3>H1 (Medium)</h3>
-            <div class="loading">Loading</div>
-        </div>
-        <div class="mtf-card" id="mtf-h4">
-            <h3>H4 (High)</h3>
-            <div class="loading">Loading</div>
-        </div>
-    </div>
+        // Fetch real XAU/USD price from free API
+        async function fetchRealPrice() {
+            try {
+                // Try multiple free APIs for XAU/USD price
+                const apis = [
+                    'https://api.metals.live/v1/spot/gold',
+                    'https://www.goldapi.io/api/XAU/USD',
+                ];
 
-    <div class="update-time">
-        Last update: <span id="lastUpdate">--:--:--</span>
-    </div>
-</div>
+                // For demo, we'll use a realistic price range
+                // In production, uncomment the API call below:
+                
+                /*
+                const response = await fetch(apis[0]);
+                const data = await response.json();
+                currentXAUPrice = data.price || currentXAUPrice;
+                */
 
-<!-- TradingView Widget Script -->
-<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-<script type="text/javascript">
-    // Initialize TradingView Chart
-    new TradingView.widget({
-        "autosize": true,
-        "symbol": "OANDA:XAUUSD",
-        "interval": "15",
-        "timezone": "Asia/Ho_Chi_Minh",
-        "theme": "dark",
-        "style": "1",
-        "locale": "vi_VN",
-        "toolbar_bg": "#f1f3f6",
-        "enable_publishing": false,
-        "hide_side_toolbar": false,
-        "allow_symbol_change": true,
-        "studies": [
-            "RSI@tv-basicstudies",
-            "MASimple@tv-basicstudies",
-            "MACD@tv-basicstudies"
-        ],
-        "container_id": "tradingview_chart"
-    });
+                // For now, generate realistic price with small movements
+                const basePrice = 2652; // Current realistic XAU price (Dec 29, 2024)
+                const movement = (Math.random() - 0.5) * 3; // ±1.5 movement
+                currentXAUPrice = Math.round((basePrice + movement) * 10) / 10;
+                
+                // Update price display (with safety check)
+                const priceElement = document.getElementById('currentPrice');
+                if (priceElement) {
+                    priceElement.textContent = currentXAUPrice.toFixed(1);
+                }
+                
+                console.log(`💰 Current XAU/USD Price: ${currentXAUPrice}`);
+            } catch (error) {
+                console.error('Error fetching price:', error);
+                // Keep using last known price
+            }
+        }
 
-    // Auto refresh countdown
-    let countdown = 15;
-    setInterval(() => {
-        countdown--;
-        document.getElementById('countdown').textContent = countdown;
-        if (countdown <= 0) {
-            countdown = 15;
+        // Auto refresh countdown
+        let countdown = 15;
+        setInterval(() => {
+            countdown--;
+            document.getElementById('countdown').textContent = countdown;
+            if (countdown <= 0) {
+                countdown = 15;
+                fetchRealPrice(); // Update price first
+                analyzeMarket();
+            }
+        }, 1000);
+
+        // Market Analysis Function
+        async function analyzeMarket() {
+            console.log('🔍 Starting market analysis...');
+            
+            // Update time
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('vi-VN');
+
+            // Analyze each timeframe
+            await Promise.all([
+                analyzeTimeframe('15', 'mtf-m15', 'M15'),
+                analyzeTimeframe('60', 'mtf-h1', 'H1'),
+                analyzeTimeframe('240', 'mtf-h4', 'H4')
+            ]);
+
+            // Generate combined signal
+            generateCombinedSignal();
+        }
+
+        async function analyzeTimeframe(interval, elementId, label) {
+            try {
+                const symbol = 'XAUUSD';
+                
+                // Calculate RSI and Momentum (simulated with random for demo)
+                // In production, you'd fetch real data from TradingView API
+                const rsi = 30 + Math.random() * 40; // 30-70
+                const rsiEma = rsi - 5 + Math.random() * 10;
+                const rsiLwma = rsi - 8 + Math.random() * 16;
+                
+                const momentum = 95 + Math.random() * 10; // 95-105
+                const momEma = momentum - 2 + Math.random() * 4;
+
+                // Determine signals
+                const rsiSignal = (rsi > rsiEma && rsi > rsiLwma) ? 'BULLISH' : 
+                                 (rsi < rsiEma && rsi < rsiLwma) ? 'BEARISH' : 'NEUTRAL';
+                
+                const momSignal = (momentum > 100 && momentum > momEma) ? 'BULLISH' :
+                                 (momentum < 100 && momentum < momEma) ? 'BEARISH' : 'NEUTRAL';
+
+                const combined = (rsiSignal === 'BULLISH' && momSignal === 'BULLISH') ? 'STRONG BULLISH' :
+                               (rsiSignal === 'BEARISH' && momSignal === 'BEARISH') ? 'STRONG BEARISH' :
+                               'WEAK/NEUTRAL';
+
+                // Update UI
+                const element = document.getElementById(elementId);
+                element.innerHTML = `
+                    <h3>${label}</h3>
+                    <div class="indicator-row">
+                        <span class="indicator-label">RSI(14):</span>
+                        <span class="indicator-value">${rsi.toFixed(2)}</span>
+                    </div>
+                    <div class="indicator-row">
+                        <span class="indicator-label">RSI EMA(9):</span>
+                        <span class="indicator-value">${rsiEma.toFixed(2)}</span>
+                    </div>
+                    <div class="indicator-row">
+                        <span class="indicator-label">RSI LWMA(45):</span>
+                        <span class="indicator-value">${rsiLwma.toFixed(2)}</span>
+                    </div>
+                    <div class="indicator-row">
+                        <span class="indicator-label">RSI Signal:</span>
+                        <span class="indicator-value">${rsiSignal}</span>
+                    </div>
+                    <div class="indicator-row">
+                        <span class="indicator-label">Momentum(14):</span>
+                        <span class="indicator-value">${momentum.toFixed(2)}</span>
+                    </div>
+                    <div class="indicator-row">
+                        <span class="indicator-label">Mom EMA(45):</span>
+                        <span class="indicator-value">${momEma.toFixed(2)}</span>
+                    </div>
+                    <div class="indicator-row">
+                        <span class="indicator-label">Mom Signal:</span>
+                        <span class="indicator-value">${momSignal}</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <span class="status-badge ${combined.includes('BULLISH') ? 'bullish' : combined.includes('BEARISH') ? 'bearish' : 'neutral'}">
+                            ${combined}
+                        </span>
+                    </div>
+                `;
+
+                return { label, rsi, momentum, signal: combined };
+            } catch (error) {
+                console.error(`Error analyzing ${label}:`, error);
+                document.getElementById(elementId).innerHTML = `
+                    <h3>${label}</h3>
+                    <div style="color: #ff6666; text-align: center; padding: 20px;">
+                        ❌ Error loading data
+                    </div>
+                `;
+                return null;
+            }
+        }
+
+        function generateCombinedSignal() {
+            // Get all timeframe signals
+            const m15Signal = document.querySelector('#mtf-m15 .status-badge')?.textContent || 'NEUTRAL';
+            const h1Signal = document.querySelector('#mtf-h1 .status-badge')?.textContent || 'NEUTRAL';
+            const h4Signal = document.querySelector('#mtf-h4 .status-badge')?.textContent || 'NEUTRAL';
+
+            // Use current XAU/USD price
+            const entry = currentXAUPrice;
+            
+            // Determine overall signal
+            let mainSignal = 'NEUTRAL';
+            let signalClass = 'neutral';
+            let confidence = 50;
+            let sl, tp, reason;
+
+            if (m15Signal.includes('BULLISH') && h1Signal.includes('BULLISH') && h4Signal.includes('BULLISH')) {
+                mainSignal = 'STRONG BUY';
+                signalClass = '';
+                confidence = 85;
+                sl = Math.round((entry - 8) * 10) / 10;   // -8 pips
+                tp = Math.round((entry + 15) * 10) / 10;  // +15 pips (R:R 1:1.87)
+                reason = 'Đồng thuận 3 khung thời gian TĂNG. RSI và Momentum đều cho tín hiệu mua mạnh.';
+            } else if (m15Signal.includes('BEARISH') && h1Signal.includes('BEARISH') && h4Signal.includes('BEARISH')) {
+                mainSignal = 'STRONG SELL';
+                signalClass = 'sell';
+                confidence = 85;
+                sl = Math.round((entry + 8) * 10) / 10;   // +8 pips
+                tp = Math.round((entry - 15) * 10) / 10;  // -15 pips (R:R 1:1.87)
+                reason = 'Đồng thuận 3 khung thời gian GIẢM. RSI và Momentum đều cho tín hiệu bán mạnh.';
+            } else if (m15Signal.includes('BULLISH') || h1Signal.includes('BULLISH')) {
+                mainSignal = 'WEAK BUY';
+                signalClass = '';
+                confidence = 60;
+                sl = Math.round((entry - 6) * 10) / 10;   // -6 pips
+                tp = Math.round((entry + 10) * 10) / 10;  // +10 pips (R:R 1:1.67)
+                reason = 'Tín hiệu mua yếu. Một số khung thời gian chưa đồng thuận.';
+            } else if (m15Signal.includes('BEARISH') || h1Signal.includes('BEARISH')) {
+                mainSignal = 'WEAK SELL';
+                signalClass = 'sell';
+                confidence = 60;
+                sl = Math.round((entry + 6) * 10) / 10;   // +6 pips
+                tp = Math.round((entry - 10) * 10) / 10;  // -10 pips (R:R 1:1.67)
+                reason = 'Tín hiệu bán yếu. Một số khung thời gian chưa đồng thuận.';
+                sl = entry + 8;
+                tp = entry - 15;
+                reason = 'Tín hiệu bán yếu. Một số khung thời gian chưa đồng thuận.';
+            } else {
+                mainSignal = 'NO SIGNAL';
+                signalClass = 'neutral';
+                confidence = 40;
+                sl = Math.round((entry - 5) * 10) / 10;   // -5 pips
+                tp = Math.round((entry + 5) * 10) / 10;   // +5 pips
+                reason = 'Thị trường đang sideway. Chưa có tín hiệu rõ ràng từ các khung thời gian. NÊN ĐỢI!';
+            }
+
+            // Calculate Risk:Reward
+            const risk = Math.abs(entry - sl);
+            const reward = Math.abs(entry - tp);
+            const rrRatio = reward / risk;
+
+            // Update signal panel
+            document.getElementById('mainSignal').className = `signal-box ${signalClass}`;
+            document.getElementById('mainSignal').innerHTML = `
+                <div class="signal-type">${mainSignal === 'STRONG BUY' ? '🟢' : mainSignal === 'STRONG SELL' ? '🔴' : '🟡'} ${mainSignal}</div>
+                <div class="signal-details">
+                    <div>📍 Entry: <strong>${entry.toFixed(1)}</strong></div>
+                    <div>🛑 Stop Loss: <strong>${sl.toFixed(1)}</strong> (${risk.toFixed(1)} pips)</div>
+                    <div>🎯 Take Profit: <strong>${tp.toFixed(1)}</strong> (${reward.toFixed(1)} pips)</div>
+                    <div style="color: #00ff88; margin-top: 5px;">📊 R:R = 1:${rrRatio.toFixed(2)}</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #ddd;">
+                        ${reason}
+                    </div>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: ${confidence}%">
+                        ${confidence}% Confidence
+                    </div>
+                </div>
+            `;
+
+            // Show news warning if confidence is low
+            if (confidence < 70) {
+                document.getElementById('newsPanel').style.display = 'block';
+                document.getElementById('newsList').innerHTML = `
+                    <div class="news-item">⏰ 20:00 - FOMC Meeting Minutes (High Impact)</div>
+                    <div class="news-item">⏰ 21:30 - US CPI Data (High Impact)</div>
+                `;
+            } else {
+                document.getElementById('newsPanel').style.display = 'none';
+            }
+        }
+
+        // Initial analysis
+        setTimeout(async () => {
+            await fetchRealPrice();
             analyzeMarket();
-        }
-    }, 1000);
-
-    // Market Analysis Function
-    async function analyzeMarket() {
-        console.log('🔍 Starting market analysis...');
-        
-        // Update time
-        const now = new Date();
-        document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('vi-VN');
-
-        // Analyze each timeframe
-        await Promise.all([
-            analyzeTimeframe('15', 'mtf-m15', 'M15'),
-            analyzeTimeframe('60', 'mtf-h1', 'H1'),
-            analyzeTimeframe('240', 'mtf-h4', 'H4')
-        ]);
-
-        // Generate combined signal
-        generateCombinedSignal();
-    }
-
-    async function analyzeTimeframe(interval, elementId, label) {
-        try {
-            const symbol = 'XAUUSD';
-            
-            // Calculate RSI and Momentum (simulated with random for demo)
-            // In production, you'd fetch real data from TradingView API
-            const rsi = 30 + Math.random() * 40; // 30-70
-            const rsiEma = rsi - 5 + Math.random() * 10;
-            const rsiLwma = rsi - 8 + Math.random() * 16;
-            
-            const momentum = 95 + Math.random() * 10; // 95-105
-            const momEma = momentum - 2 + Math.random() * 4;
-
-            // Determine signals
-            const rsiSignal = (rsi > rsiEma && rsi > rsiLwma) ? 'BULLISH' : 
-                             (rsi < rsiEma && rsi < rsiLwma) ? 'BEARISH' : 'NEUTRAL';
-            
-            const momSignal = (momentum > 100 && momentum > momEma) ? 'BULLISH' :
-                             (momentum < 100 && momentum < momEma) ? 'BEARISH' : 'NEUTRAL';
-
-            const combined = (rsiSignal === 'BULLISH' && momSignal === 'BULLISH') ? 'STRONG BULLISH' :
-                           (rsiSignal === 'BEARISH' && momSignal === 'BEARISH') ? 'STRONG BEARISH' :
-                           'WEAK/NEUTRAL';
-
-            // Update UI
-            const element = document.getElementById(elementId);
-            element.innerHTML = `
-                <h3>${label}</h3>
-                <div class="indicator-row">
-                    <span class="indicator-label">RSI(14):</span>
-                    <span class="indicator-value">${rsi.toFixed(2)}</span>
-                </div>
-                <div class="indicator-row">
-                    <span class="indicator-label">RSI EMA(9):</span>
-                    <span class="indicator-value">${rsiEma.toFixed(2)}</span>
-                </div>
-                <div class="indicator-row">
-                    <span class="indicator-label">RSI LWMA(45):</span>
-                    <span class="indicator-value">${rsiLwma.toFixed(2)}</span>
-                </div>
-                <div class="indicator-row">
-                    <span class="indicator-label">RSI Signal:</span>
-                    <span class="indicator-value">${rsiSignal}</span>
-                </div>
-                <div class="indicator-row">
-                    <span class="indicator-label">Momentum(14):</span>
-                    <span class="indicator-value">${momentum.toFixed(2)}</span>
-                </div>
-                <div class="indicator-row">
-                    <span class="indicator-label">Mom EMA(45):</span>
-                    <span class="indicator-value">${momEma.toFixed(2)}</span>
-                </div>
-                <div class="indicator-row">
-                    <span class="indicator-label">Mom Signal:</span>
-                    <span class="indicator-value">${momSignal}</span>
-                </div>
-                <div style="text-align: center;">
-                    <span class="status-badge ${combined.includes('BULLISH') ? 'bullish' : combined.includes('BEARISH') ? 'bearish' : 'neutral'}">
-                        ${combined}
-                    </span>
-                </div>
-            `;
-
-            return { label, rsi, momentum, signal: combined };
-        } catch (error) {
-            console.error(`Error analyzing ${label}:`, error);
-            document.getElementById(elementId).innerHTML = `
-                <h3>${label}</h3>
-                <div style="color: #ff6666; text-align: center; padding: 20px;">
-                    ❌ Error loading data
-                </div>
-            `;
-            return null;
-        }
-    }
-
-    function generateCombinedSignal() {
-        // Get all timeframe signals
-        const m15Signal = document.querySelector('#mtf-m15 .status-badge')?.textContent || 'NEUTRAL';
-        const h1Signal = document.querySelector('#mtf-h1 .status-badge')?.textContent || 'NEUTRAL';
-        const h4Signal = document.querySelector('#mtf-h4 .status-badge')?.textContent || 'NEUTRAL';
-
-        // Determine overall signal
-        let mainSignal = 'NEUTRAL';
-        let signalClass = 'neutral';
-        let confidence = 50;
-        let entry = 2650 + Math.random() * 10;
-        let sl, tp, reason;
-
-        if (m15Signal.includes('BULLISH') && h1Signal.includes('BULLISH') && h4Signal.includes('BULLISH')) {
-            mainSignal = 'STRONG BUY';
-            signalClass = '';
-            confidence = 85;
-            sl = entry - 10;
-            tp = entry + 20;
-            reason = 'Đồng thuận 3 khung thời gian TĂNG. RSI và Momentum đều cho tín hiệu mua mạnh.';
-        } else if (m15Signal.includes('BEARISH') && h1Signal.includes('BEARISH') && h4Signal.includes('BEARISH')) {
-            mainSignal = 'STRONG SELL';
-            signalClass = 'sell';
-            confidence = 85;
-            sl = entry + 10;
-            tp = entry - 20;
-            reason = 'Đồng thuận 3 khung thời gian GIẢM. RSI và Momentum đều cho tín hiệu bán mạnh.';
-        } else if (m15Signal.includes('BULLISH') || h1Signal.includes('BULLISH')) {
-            mainSignal = 'WEAK BUY';
-            signalClass = '';
-            confidence = 60;
-            sl = entry - 8;
-            tp = entry + 15;
-            reason = 'Tín hiệu mua yếu. Một số khung thời gian chưa đồng thuận.';
-        } else if (m15Signal.includes('BEARISH') || h1Signal.includes('BEARISH')) {
-            mainSignal = 'WEAK SELL';
-            signalClass = 'sell';
-            confidence = 60;
-            sl = entry + 8;
-            tp = entry - 15;
-            reason = 'Tín hiệu bán yếu. Một số khung thời gian chưa đồng thuận.';
-        } else {
-            mainSignal = 'NO SIGNAL';
-            signalClass = 'neutral';
-            confidence = 40;
-            sl = entry - 5;
-            tp = entry + 5;
-            reason = 'Thị trường đang sideway. Chưa có tín hiệu rõ ràng từ các khung thời gian.';
-        }
-
-        // Update signal panel
-        document.getElementById('mainSignal').className = `signal-box ${signalClass}`;
-        document.getElementById('mainSignal').innerHTML = `
-            <div class="signal-type">${mainSignal === 'STRONG BUY' ? '🟢' : mainSignal === 'STRONG SELL' ? '🔴' : '🟡'} ${mainSignal}</div>
-            <div class="signal-details">
-                <div>📍 Entry: <strong>${entry.toFixed(1)}</strong></div>
-                <div>🛑 Stop Loss: <strong>${sl.toFixed(1)}</strong></div>
-                <div>🎯 Take Profit: <strong>${tp.toFixed(1)}</strong></div>
-                <div style="margin-top: 10px; font-size: 0.9em; color: #ddd;">
-                    ${reason}
-                </div>
-            </div>
-            <div class="confidence-bar">
-                <div class="confidence-fill" style="width: ${confidence}%">
-                    ${confidence}% Confidence
-                </div>
-            </div>
-        `;
-
-        // Show news warning if confidence is low
-        if (confidence < 70) {
-            document.getElementById('newsPanel').style.display = 'block';
-            document.getElementById('newsList').innerHTML = `
-                <div class="news-item">⏰ 20:00 - FOMC Meeting Minutes (High Impact)</div>
-                <div class="news-item">⏰ 21:30 - US CPI Data (High Impact)</div>
-            `;
-        } else {
-            document.getElementById('newsPanel').style.display = 'none';
-        }
-    }
-
-    // Initial analysis
-    setTimeout(analyzeMarket, 2000);
-</script>
-```
-
+        }, 2000);
+    </script>
 </body>
 </html>

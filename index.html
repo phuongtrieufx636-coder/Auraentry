@@ -3,77 +3,50 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Trading Assistant - Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AI Trading Assistant</title>
 
 ```
-<!-- TradingView Widget -->
-<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Poppins:wght@300;400;600;700&display=swap');
-    
-    :root {
-        --bg-primary: #0a0e1a;
-        --bg-secondary: #131820;
-        --bg-tertiary: #1a1f2e;
-        --accent-blue: #00d4ff;
-        --accent-green: #00ff88;
-        --accent-red: #ff3366;
-        --accent-yellow: #ffd700;
-        --text-primary: #ffffff;
-        --text-secondary: #8b95a8;
-        --border-color: #2a3142;
-        --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
-    }
     
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    :root {
+        --bg-primary: #0a0e1a;
+        --bg-secondary: #131820;
+        --bg-tertiary: #1a1f2e;
+        --accent-cyan: #00d4ff;
+        --accent-green: #00ff88;
+        --accent-red: #ff3366;
+        --accent-gold: #ffd700;
+        --text-primary: #ffffff;
+        --text-secondary: #8b95a8;
+        --border: #2a3142;
     }
     
     body {
         font-family: 'Poppins', sans-serif;
         background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
         color: var(--text-primary);
-        overflow-x: hidden;
         min-height: 100vh;
-    }
-    
-    /* Animated Background */
-    .bg-animation {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 0;
-        opacity: 0.05;
-        background: 
-            radial-gradient(circle at 20% 50%, var(--accent-blue) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, var(--accent-green) 0%, transparent 50%);
-        animation: bgPulse 10s ease-in-out infinite;
-    }
-    
-    @keyframes bgPulse {
-        0%, 100% { opacity: 0.05; }
-        50% { opacity: 0.1; }
+        overflow-x: hidden;
     }
     
     /* Header */
-    header {
+    .header {
         position: sticky;
         top: 0;
         z-index: 100;
-        background: rgba(19, 24, 32, 0.95);
+        background: rgba(19, 24, 32, 0.98);
         backdrop-filter: blur(20px);
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border);
         padding: 12px 16px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    }
-    
-    .header-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -89,130 +62,122 @@
     }
     
     .logo-icon {
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: rotate 10s linear infinite;
+        font-size: 32px;
     }
     
-    @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    
-    .balance-display {
+    .balance {
         font-family: 'JetBrains Mono', monospace;
-        font-size: 14px;
+        font-size: 16px;
         color: var(--accent-green);
-    }
-    
-    /* Main Container */
-    .container {
-        position: relative;
-        z-index: 1;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 16px;
-    }
-    
-    /* Chart Section */
-    .chart-section {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 16px;
-        overflow: hidden;
-        margin-bottom: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    }
-    
-    .chart-header {
-        padding: 12px 16px;
-        background: var(--bg-tertiary);
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .symbol-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    
-    .symbol-name {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 18px;
         font-weight: 700;
-        color: var(--accent-yellow);
     }
     
-    .timeframe-badge {
-        padding: 4px 12px;
-        background: rgba(0, 212, 255, 0.1);
-        border: 1px solid var(--accent-blue);
-        border-radius: 6px;
-        font-size: 12px;
-        font-family: 'JetBrains Mono', monospace;
-        color: var(--accent-blue);
+    /* Container */
+    .container {
+        padding: 16px;
+        max-width: 1200px;
+        margin: 0 auto;
     }
     
-    #tradingview_chart {
-        height: 400px;
-        background: #131722;
-    }
-    
-    /* Analysis Panel */
-    .analysis-panel {
+    /* Card */
+    .card {
         background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--border);
         border-radius: 16px;
         padding: 20px;
         margin-bottom: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
     
-    .panel-title {
+    .card-title {
         font-size: 18px;
         font-weight: 600;
         margin-bottom: 16px;
+        color: var(--accent-cyan);
         display: flex;
         align-items: center;
         gap: 8px;
-        color: var(--accent-blue);
     }
     
-    .panel-title::before {
-        content: '🤖';
-        font-size: 24px;
+    /* Chart Container */
+    .chart-container {
+        background: #131722;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 16px;
     }
     
-    /* MTF Indicators */
+    .chart-header {
+        background: var(--bg-tertiary);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .symbol {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent-gold);
+    }
+    
+    .timeframe {
+        padding: 6px 14px;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid var(--accent-cyan);
+        border-radius: 8px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        color: var(--accent-cyan);
+    }
+    
+    /* TradingView Embed */
+    .tradingview-widget-container {
+        height: 500px;
+        width: 100%;
+    }
+    
+    .chart-loading {
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #131722;
+    }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid var(--bg-tertiary);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* MTF Grid */
     .mtf-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 12px;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
     
     .mtf-card {
         background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--border);
         border-radius: 12px;
-        padding: 12px;
-        transition: all 0.3s ease;
+        padding: 14px;
+        text-align: center;
     }
     
-    .mtf-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-glow);
-    }
-    
-    .mtf-timeframe {
+    .mtf-tf {
         font-family: 'JetBrains Mono', monospace;
         font-size: 12px;
         color: var(--text-secondary);
@@ -221,193 +186,141 @@
     
     .mtf-value {
         font-family: 'JetBrains Mono', monospace;
-        font-size: 16px;
+        font-size: 20px;
         font-weight: 700;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+    }
+    
+    .mtf-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-bottom: 2px;
     }
     
     .mtf-signal {
-        font-size: 12px;
-        padding: 4px 8px;
+        font-size: 11px;
+        padding: 4px 10px;
         border-radius: 6px;
         display: inline-block;
         font-weight: 600;
+        margin-top: 6px;
     }
     
-    .signal-bullish {
-        background: rgba(0, 255, 136, 0.1);
+    .bull { 
+        background: rgba(0, 255, 136, 0.15);
         color: var(--accent-green);
         border: 1px solid var(--accent-green);
     }
-    
-    .signal-bearish {
-        background: rgba(255, 51, 102, 0.1);
+    .bear { 
+        background: rgba(255, 51, 102, 0.15);
         color: var(--accent-red);
         border: 1px solid var(--accent-red);
     }
-    
-    .signal-neutral {
-        background: rgba(139, 149, 168, 0.1);
+    .neutral { 
+        background: rgba(139, 149, 168, 0.15);
         color: var(--text-secondary);
         border: 1px solid var(--text-secondary);
     }
     
-    /* AI Result Card */
+    /* AI Result */
     .ai-result {
-        background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 255, 136, 0.05));
-        border: 2px solid var(--accent-blue);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(0, 255, 136, 0.08));
+        border: 2px solid var(--accent-cyan);
         border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 20px;
-        animation: fadeIn 0.5s ease;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .ai-signal {
-        font-size: 32px;
-        font-weight: 700;
+        padding: 24px;
         text-align: center;
+    }
+    
+    .ai-signal-big {
+        font-size: 48px;
+        font-weight: 700;
         margin-bottom: 16px;
         font-family: 'JetBrains Mono', monospace;
-        text-shadow: 0 0 20px currentColor;
+        text-shadow: 0 0 30px currentColor;
     }
     
-    .ai-signal.buy { color: var(--accent-green); }
-    .ai-signal.sell { color: var(--accent-red); }
-    .ai-signal.neutral { color: var(--text-secondary); }
+    .ai-signal-big.buy { color: var(--accent-green); }
+    .ai-signal-big.sell { color: var(--accent-red); }
     
-    .ai-details {
+    .ai-prices {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
-        margin-bottom: 16px;
+        margin: 20px 0;
     }
     
-    .ai-detail-item {
+    .ai-price {
         background: var(--bg-tertiary);
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
     }
     
-    .ai-detail-label {
+    .ai-price-label {
         font-size: 12px;
         color: var(--text-secondary);
         margin-bottom: 4px;
     }
     
-    .ai-detail-value {
+    .ai-price-value {
         font-family: 'JetBrains Mono', monospace;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 700;
     }
     
     .ai-reason {
         background: var(--bg-tertiary);
         padding: 16px;
-        border-radius: 8px;
-        border-left: 4px solid var(--accent-blue);
+        border-radius: 10px;
+        border-left: 4px solid var(--accent-cyan);
+        text-align: left;
         font-size: 14px;
-        line-height: 1.6;
+        line-height: 1.7;
+        margin-top: 16px;
     }
     
-    /* Action Buttons */
-    .action-buttons {
+    /* Buttons */
+    .btn-group {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 12px;
     }
     
     .btn {
-        padding: 16px;
+        padding: 18px;
         border: none;
-        border-radius: 12px;
+        border-radius: 14px;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
         font-family: 'Poppins', sans-serif;
+        transition: all 0.3s ease;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        position: relative;
-        overflow: hidden;
+        letter-spacing: 0.5px;
     }
     
-    .btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-    }
-    
-    .btn:active::before {
-        width: 300px;
-        height: 300px;
-    }
-    
-    .btn-analyze {
-        background: linear-gradient(135deg, var(--accent-blue), #0099cc);
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-cyan), #0099cc);
         color: white;
-        box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+        box-shadow: 0 6px 25px rgba(0, 212, 255, 0.4);
     }
     
-    .btn-analyze:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 30px rgba(0, 212, 255, 0.6);
+    .btn-primary:active {
+        transform: scale(0.97);
     }
     
-    .btn-analyze:disabled {
+    .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 2px solid var(--border);
+    }
+    
+    .btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
     }
     
-    .btn-settings {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        border: 2px solid var(--border-color);
-    }
-    
-    .btn-settings:hover {
-        background: var(--bg-secondary);
-        border-color: var(--accent-blue);
-    }
-    
-    /* Loading Animation */
-    .loading {
-        text-align: center;
-        padding: 40px;
-    }
-    
-    .loading-spinner {
-        width: 50px;
-        height: 50px;
-        border: 4px solid var(--bg-tertiary);
-        border-top: 4px solid var(--accent-blue);
-        border-radius: 50%;
-        margin: 0 auto 16px;
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    
-    .loading-text {
-        color: var(--text-secondary);
-        font-size: 14px;
-    }
-    
-    /* Settings Modal */
+    /* Modal */
     .modal {
         display: none;
         position: fixed;
@@ -415,40 +328,25 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.9);
         z-index: 1000;
-        align-items: center;
-        justify-content: center;
         padding: 20px;
+        overflow-y: auto;
     }
     
-    .modal.active {
+    .modal.show {
         display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .modal-content {
         background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 16px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
         padding: 24px;
         max-width: 500px;
         width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-        animation: modalSlideIn 0.3s ease;
-    }
-    
-    @keyframes modalSlideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
     
     .modal-header {
@@ -457,41 +355,38 @@
         align-items: center;
         margin-bottom: 24px;
         padding-bottom: 16px;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border);
     }
     
     .modal-title {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 700;
-        color: var(--accent-blue);
+        color: var(--accent-cyan);
     }
     
     .modal-close {
         background: none;
         border: none;
         color: var(--text-secondary);
-        font-size: 24px;
+        font-size: 28px;
         cursor: pointer;
-        padding: 0;
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
-        transition: all 0.3s;
+        border-radius: 10px;
     }
     
-    .modal-close:hover {
+    .modal-close:active {
         background: var(--bg-tertiary);
-        color: var(--text-primary);
     }
     
-    .setting-group {
+    .input-group {
         margin-bottom: 20px;
     }
     
-    .setting-label {
+    .input-label {
         display: block;
         margin-bottom: 8px;
         font-size: 14px;
@@ -499,78 +394,82 @@
         color: var(--text-primary);
     }
     
-    .setting-input {
+    .input-field {
         width: 100%;
-        padding: 12px;
+        padding: 14px;
         background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
         color: var(--text-primary);
         font-family: 'JetBrains Mono', monospace;
         font-size: 14px;
-        transition: all 0.3s;
     }
     
-    .setting-input:focus {
+    .input-field:focus {
         outline: none;
-        border-color: var(--accent-blue);
+        border-color: var(--accent-cyan);
         box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
     }
     
-    .setting-description {
+    .input-hint {
         font-size: 12px;
         color: var(--text-secondary);
-        margin-top: 4px;
+        margin-top: 6px;
     }
     
-    /* Toast Notifications */
+    .input-hint a {
+        color: var(--accent-cyan);
+        text-decoration: none;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-secondary);
+    }
+    
+    .empty-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+    }
+    
+    /* Toast */
     .toast {
         position: fixed;
         bottom: 20px;
-        right: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
         background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--border);
         border-radius: 12px;
-        padding: 16px 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-        transform: translateX(400px);
+        padding: 16px 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
         transition: transform 0.3s ease;
         z-index: 2000;
-        max-width: 350px;
+        max-width: 90%;
     }
     
     .toast.show {
-        transform: translateX(0);
+        transform: translateX(-50%) translateY(0);
     }
     
-    .toast-success {
-        border-left: 4px solid var(--accent-green);
-    }
+    .toast-success { border-left: 4px solid var(--accent-green); }
+    .toast-error { border-left: 4px solid var(--accent-red); }
+    .toast-info { border-left: 4px solid var(--accent-cyan); }
     
-    .toast-error {
-        border-left: 4px solid var(--accent-red);
-    }
-    
-    .toast-info {
-        border-left: 4px solid var(--accent-blue);
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-        .container {
-            padding: 12px;
-        }
-        
-        #tradingview_chart {
-            height: 300px;
-        }
-        
-        .ai-details {
-            grid-template-columns: 1fr;
-        }
-        
+    @media (max-width: 600px) {
         .mtf-grid {
             grid-template-columns: 1fr;
+        }
+        
+        .ai-prices {
+            grid-template-columns: 1fr;
+        }
+        
+        .tradingview-widget-container,
+        .chart-loading {
+            height: 400px;
         }
     }
 </style>
@@ -578,58 +477,55 @@
 
 </head>
 <body>
-    <div class="bg-animation"></div>
-
-```
-<header>
-    <div class="header-content">
+    <div class="header">
         <div class="logo">
-            <div class="logo-icon">🤖</div>
+            <span class="logo-icon">🤖</span>
             <span>AI Trading</span>
         </div>
-        <div class="balance-display" id="balanceDisplay">
-            $0.00
-        </div>
+        <div class="balance" id="balance">$0.00</div>
     </div>
-</header>
 
+```
 <div class="container">
-    <!-- Chart Section -->
-    <div class="chart-section">
+    <!-- Chart -->
+    <div class="chart-container">
         <div class="chart-header">
-            <div class="symbol-info">
-                <div class="symbol-name" id="symbolName">XAUUSD</div>
-                <div class="timeframe-badge" id="timeframeBadge">M15</div>
-            </div>
+            <div class="symbol" id="symbol">XAUUSD</div>
+            <div class="timeframe" id="timeframe">M15</div>
         </div>
-        <div id="tradingview_chart"></div>
+        
+        <!-- TradingView Widget -->
+        <div class="tradingview-widget-container">
+            <div id="tradingview_widget"></div>
+        </div>
     </div>
     
-    <!-- Multi-Timeframe Analysis -->
-    <div class="analysis-panel">
-        <div class="panel-title">Phân Tích Đa Khung</div>
+    <!-- MTF Analysis -->
+    <div class="card">
+        <div class="card-title">🤖 Phân Tích Đa Khung</div>
         <div class="mtf-grid" id="mtfGrid">
-            <!-- Will be populated by JavaScript -->
+            <!-- Populated by JS -->
         </div>
     </div>
     
-    <!-- AI Analysis Result -->
-    <div class="analysis-panel">
-        <div class="panel-title">Phân Tích AI</div>
-        <div id="aiResultContainer">
-            <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+    <!-- AI Result -->
+    <div class="card">
+        <div class="card-title">🤖 Phân Tích AI</div>
+        <div id="aiResult">
+            <div class="empty-state">
+                <div class="empty-icon">📊</div>
                 <p>Nhấn "Phân Tích AI" để bắt đầu</p>
             </div>
         </div>
     </div>
     
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-        <button class="btn btn-analyze" id="analyzeBtn">
-            🤖 Phân Tích AI
+    <!-- Buttons -->
+    <div class="btn-group">
+        <button class="btn btn-primary" id="analyzeBtn">
+            🤖 PHÂN TÍCH AI
         </button>
-        <button class="btn btn-settings" id="settingsBtn">
-            ⚙️ Cài Đặt
+        <button class="btn btn-secondary" id="settingsBtn">
+            ⚙️ CÀI ĐẶT
         </button>
     </div>
 </div>
@@ -638,217 +534,163 @@
 <div class="modal" id="settingsModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title">⚙️ Cài Đặt</h2>
+            <div class="modal-title">⚙️ Cài Đặt</div>
             <button class="modal-close" id="closeModal">×</button>
         </div>
         
-        <div class="setting-group">
-            <label class="setting-label">API Key (Groq)</label>
-            <input type="password" class="setting-input" id="apiKeyInput" 
-                   placeholder="gsk_...">
-            <div class="setting-description">
-                Get free API key at <a href="https://console.groq.com" target="_blank" 
-                style="color: var(--accent-blue)">console.groq.com</a>
+        <div class="input-group">
+            <label class="input-label">API Key (Groq)</label>
+            <input type="password" class="input-field" id="apiKey" placeholder="gsk_...">
+            <div class="input-hint">
+                Lấy free tại <a href="https://console.groq.com" target="_blank">console.groq.com</a>
             </div>
         </div>
         
-        <div class="setting-group">
-            <label class="setting-label">Symbol</label>
-            <input type="text" class="setting-input" id="symbolInput" 
-                   value="OANDA:XAUUSD" placeholder="OANDA:XAUUSD">
-            <div class="setting-description">
-                Format: EXCHANGE:SYMBOL (e.g., OANDA:XAUUSD, FX:EURUSD)
-            </div>
+        <div class="input-group">
+            <label class="input-label">Symbol</label>
+            <input type="text" class="input-field" id="symbolInput" value="XAUUSD" placeholder="XAUUSD">
+            <div class="input-hint">XAUUSD, EURUSD, GBPUSD, etc.</div>
         </div>
         
-        <div class="setting-group">
-            <label class="setting-label">Timeframe</label>
-            <select class="setting-input" id="timeframeInput">
-                <option value="1">1 minute</option>
-                <option value="5">5 minutes</option>
-                <option value="15" selected>15 minutes</option>
-                <option value="30">30 minutes</option>
-                <option value="60">1 hour</option>
-                <option value="240">4 hours</option>
-                <option value="D">Daily</option>
+        <div class="input-group">
+            <label class="input-label">Timeframe</label>
+            <select class="input-field" id="timeframeInput">
+                <option value="15">15 phút (M15)</option>
+                <option value="30">30 phút (M30)</option>
+                <option value="60">1 giờ (H1)</option>
+                <option value="240">4 giờ (H4)</option>
+                <option value="D">1 ngày (D1)</option>
             </select>
         </div>
         
-        <div class="setting-group">
-            <label class="setting-label">Strategy</label>
-            <select class="setting-input" id="strategyInput">
-                <option value="ICT">ICT (Inner Circle Trader)</option>
-                <option value="SMC">Smart Money Concepts</option>
-                <option value="SCAP">Supply & Demand</option>
-                <option value="PRICE_ACTION">Price Action</option>
-                <option value="AI_HYBRID" selected>AI Hybrid (All)</option>
-            </select>
-        </div>
-        
-        <button class="btn btn-analyze" style="width: 100%; margin-top: 20px;" 
-                id="saveSettingsBtn">
-            💾 Lưu Cài Đặt
+        <button class="btn btn-primary" style="width: 100%;" id="saveBtn">
+            💾 LƯU CÀI ĐẶT
         </button>
     </div>
 </div>
 
-<!-- Toast Container -->
-<div id="toastContainer"></div>
-
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script>
-    // Configuration
+    // Config
     const config = {
-        apiKey: localStorage.getItem('groqApiKey') || '',
-        symbol: localStorage.getItem('symbol') || 'OANDA:XAUUSD',
-        timeframe: localStorage.getItem('timeframe') || '15',
-        strategy: localStorage.getItem('strategy') || 'AI_HYBRID',
-        groqModel: 'llama-3.3-70b-versatile'
+        apiKey: localStorage.getItem('apiKey') || '',
+        symbol: localStorage.getItem('symbol') || 'XAUUSD',
+        timeframe: localStorage.getItem('timeframe') || '15'
     };
     
-    // Initialize TradingView Chart
-    let tvWidget;
+    // Initialize TradingView
     function initChart() {
-        tvWidget = new TradingView.widget({
-            autosize: true,
-            symbol: config.symbol,
-            interval: config.timeframe,
-            timezone: "Asia/Ho_Chi_Minh",
-            theme: "dark",
-            style: "1",
-            locale: "vi_VN",
-            toolbar_bg: "#131722",
-            enable_publishing: false,
-            hide_top_toolbar: false,
-            hide_legend: false,
-            save_image: false,
-            container_id: "tradingview_chart",
-            studies: [
-                "RSI@tv-basicstudies",
-                "MAExp@tv-basicstudies",
-                "MASimple@tv-basicstudies"
-            ],
-            disabled_features: ["use_localstorage_for_settings"],
-            enabled_features: ["study_templates"],
-            overrides: {
-                "mainSeriesProperties.candleStyle.upColor": "#00ff88",
-                "mainSeriesProperties.candleStyle.downColor": "#ff3366",
-                "mainSeriesProperties.candleStyle.borderUpColor": "#00ff88",
-                "mainSeriesProperties.candleStyle.borderDownColor": "#ff3366",
-                "mainSeriesProperties.candleStyle.wickUpColor": "#00ff88",
-                "mainSeriesProperties.candleStyle.wickDownColor": "#ff3366"
+        const container = document.getElementById('tradingview_widget');
+        container.innerHTML = '<div class="chart-loading"><div class="spinner"></div><p style="color: var(--text-secondary); margin-top: 16px;">Đang tải chart...</p></div>';
+        
+        setTimeout(() => {
+            try {
+                new TradingView.widget({
+                    "autosize": true,
+                    "symbol": config.symbol,
+                    "interval": config.timeframe,
+                    "timezone": "Asia/Ho_Chi_Minh",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "vi_VN",
+                    "toolbar_bg": "#131722",
+                    "enable_publishing": false,
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "container_id": "tradingview_widget",
+                    "height": "500",
+                    "studies": ["RSI@tv-basicstudies"]
+                });
+            } catch (e) {
+                container.innerHTML = `
+                    <div class="chart-loading">
+                        <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                        <p style="color: var(--accent-red);">Không thể tải chart</p>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-top: 8px;">Vui lòng reload trang</p>
+                    </div>
+                `;
             }
-        });
+        }, 1000);
     }
     
-    // Multi-Timeframe Analysis
+    // MTF Analysis
     async function analyzeMTF() {
-        const timeframes = [
-            { name: 'M15', period: 15 },
-            { name: 'H1', period: 60 },
-            { name: 'H4', period: 240 }
-        ];
+        const timeframes = ['M15', 'H1', 'H4'];
+        const data = [];
         
-        const mtfData = [];
-        
-        for (const tf of timeframes) {
-            // Simulated data - in production, fetch from API
+        for (let tf of timeframes) {
             const rsi = 45 + Math.random() * 30;
             const rsiEMA = rsi - 5 + Math.random() * 10;
-            const rsiLWMA = rsi - 3 + Math.random() * 6;
-            const momentum = 99 + Math.random() * 2;
-            const momEMA = momentum - 0.5 + Math.random() * 1;
+            const mom = 99.5 + Math.random() * 1;
+            const momEMA = mom - 0.3 + Math.random() * 0.6;
             
-            let signal = 'NEUTRAL';
-            if (rsi > rsiEMA && rsi > rsiLWMA && momentum > momEMA) {
-                signal = 'BULLISH';
-            } else if (rsi < rsiEMA && rsi < rsiLWMA && momentum < momEMA) {
-                signal = 'BEARISH';
-            }
+            let signal = 'neutral';
+            if (rsi > rsiEMA && mom > momEMA) signal = 'bull';
+            else if (rsi < rsiEMA && mom < momEMA) signal = 'bear';
             
-            mtfData.push({
-                timeframe: tf.name,
-                rsi: rsi.toFixed(2),
-                rsiEMA: rsiEMA.toFixed(2),
-                rsiLWMA: rsiLWMA.toFixed(2),
-                momentum: momentum.toFixed(5),
-                momEMA: momEMA.toFixed(5),
-                signal: signal
-            });
+            data.push({ tf, rsi, rsiEMA, mom, momEMA, signal });
         }
         
-        return mtfData;
+        return data;
     }
     
-    function renderMTF(mtfData) {
-        const container = document.getElementById('mtfGrid');
-        container.innerHTML = mtfData.map(data => `
+    function renderMTF(data) {
+        const grid = document.getElementById('mtfGrid');
+        grid.innerHTML = data.map(d => `
             <div class="mtf-card">
-                <div class="mtf-timeframe">${data.timeframe}</div>
-                <div style="margin-bottom: 8px;">
-                    <div style="font-size: 11px; color: var(--text-secondary);">RSI</div>
-                    <div class="mtf-value" style="font-size: 14px;">${data.rsi}</div>
-                    <div style="font-size: 10px; color: var(--text-secondary);">
-                        EMA: ${data.rsiEMA} | LWMA: ${data.rsiLWMA}
-                    </div>
+                <div class="mtf-tf">${d.tf}</div>
+                <div class="mtf-label">RSI</div>
+                <div class="mtf-value">${d.rsi.toFixed(1)}</div>
+                <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">
+                    EMA ${d.rsiEMA.toFixed(1)}
                 </div>
-                <div style="margin-bottom: 8px;">
-                    <div style="font-size: 11px; color: var(--text-secondary);">Momentum</div>
-                    <div class="mtf-value" style="font-size: 14px;">${data.momentum}</div>
-                    <div style="font-size: 10px; color: var(--text-secondary);">
-                        EMA: ${data.momEMA}
-                    </div>
-                </div>
-                <div class="mtf-signal signal-${data.signal.toLowerCase()}">
-                    ${data.signal}
+                <div class="mtf-label">Momentum</div>
+                <div class="mtf-value" style="font-size: 16px;">${d.mom.toFixed(3)}</div>
+                <div class="mtf-signal ${d.signal}">
+                    ${d.signal === 'bull' ? '🟢 TĂNG' : d.signal === 'bear' ? '🔴 GIẢM' : '⚪ TRUNG'}
                 </div>
             </div>
         `).join('');
     }
     
     // AI Analysis
-    async function performAIAnalysis() {
+    async function analyzeAI() {
         if (!config.apiKey) {
-            showToast('Vui lòng nhập API Key trong Cài Đặt', 'error');
-            document.getElementById('settingsModal').classList.add('active');
+            toast('Vui lòng nhập API Key!', 'error');
+            document.getElementById('settingsModal').classList.add('show');
             return;
         }
         
         const btn = document.getElementById('analyzeBtn');
-        const container = document.getElementById('aiResultContainer');
+        const result = document.getElementById('aiResult');
         
         btn.disabled = true;
         btn.textContent = '⏳ Đang phân tích...';
         
-        container.innerHTML = `
-            <div class="loading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">AI đang phân tích thị trường...</div>
+        result.innerHTML = `
+            <div class="chart-loading" style="height: 200px;">
+                <div class="spinner"></div>
+                <p style="color: var(--text-secondary); margin-top: 16px;">AI đang phân tích...</p>
             </div>
         `;
         
         try {
-            // Get MTF data
-            const mtfData = await analyzeMTF();
-            renderMTF(mtfData);
+            const mtf = await analyzeMTF();
+            renderMTF(mtf);
             
-            // Prepare prompt
-            const mtfSummary = mtfData.map(d => 
-                `${d.timeframe}: RSI=${d.rsi}, Momentum=${d.momentum}, Signal=${d.signal}`
+            const summary = mtf.map(d => 
+                `${d.tf}: RSI=${d.rsi.toFixed(1)}, Mom=${d.mom.toFixed(3)}, Signal=${d.signal}`
             ).join('\n');
             
-            const prompt = `Phân tích thị trường ${config.symbol.split(':')[1]} và đưa ra quyết định giao dịch.
+            const prompt = `Phân tích ${config.symbol} và đưa ra tín hiệu.
 ```
-
-Phương pháp: ${config.strategy}
 
 PHÂN TÍCH ĐA KHUNG:
-${mtfSummary}
+${summary}
 
-Hãy phân tích và trả lời CHÍNH XÁC theo format:
-SIGNAL: BUY hoặc SELL hoặc NEUTRAL|ENTRY: [giá]|SL: [giá]|TP: [giá]|CONFIDENCE: [0-100]%|REASON: [lý do ngắn gọn]`;
+Trả lời format: SIGNAL: BUY/SELL/NEUTRAL|ENTRY: [giá]|SL: [giá]|TP: [giá]|CONFIDENCE: [%]|REASON: [lý do]`;
 
 ```
-            // Call Groq API
             const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -856,58 +698,41 @@ SIGNAL: BUY hoặc SELL hoặc NEUTRAL|ENTRY: [giá]|SL: [giá]|TP: [giá]|CONFI
                     'Authorization': `Bearer ${config.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: config.groqModel,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'You are a professional forex trading analyst.'
-                        },
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }],
                     temperature: 0.7,
-                    max_tokens: 500
+                    max_tokens: 300
                 })
             });
             
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
-            }
+            if (!response.ok) throw new Error('API Error: ' + response.status);
             
             const data = await response.json();
-            const aiResponse = data.choices[0].message.content;
+            const ai = parseAI(data.choices[0].message.content);
+            renderAI(ai);
             
-            // Parse AI response
-            const result = parseAIResponse(aiResponse);
-            renderAIResult(result);
+            toast('✅ Phân tích thành công!', 'success');
             
-            showToast('Phân tích thành công!', 'success');
-            
-        } catch (error) {
-            console.error('Analysis error:', error);
-            container.innerHTML = `
-                <div style="text-align: center; padding: 40px;">
-                    <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
-                    <div style="color: var(--accent-red); font-weight: 600; margin-bottom: 8px;">
-                        Lỗi phân tích
-                    </div>
-                    <div style="color: var(--text-secondary); font-size: 14px;">
-                        ${error.message}
-                    </div>
+        } catch (e) {
+            result.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">❌</div>
+                    <p style="color: var(--accent-red);">Lỗi: ${e.message}</p>
                 </div>
             `;
-            showToast('Lỗi: ' + error.message, 'error');
+            toast('❌ ' + e.message, 'error');
         } finally {
             btn.disabled = false;
-            btn.textContent = '🤖 Phân Tích AI';
+            btn.textContent = '🤖 PHÂN TÍCH AI';
         }
     }
     
-    function parseAIResponse(text) {
+    function parseAI(text) {
         const parts = text.split('|');
-        const result = {
+        const ai = {
             signal: 'NEUTRAL',
             entry: 0,
             sl: 0,
@@ -917,137 +742,116 @@ SIGNAL: BUY hoặc SELL hoặc NEUTRAL|ENTRY: [giá]|SL: [giá]|TP: [giá]|CONFI
         };
         
         parts.forEach(part => {
-            const [key, value] = part.split(':').map(s => s.trim());
-            
-            if (key === 'SIGNAL') result.signal = value;
-            else if (key === 'ENTRY') result.entry = parseFloat(value);
-            else if (key === 'SL') result.sl = parseFloat(value);
-            else if (key === 'TP') result.tp = parseFloat(value);
-            else if (key === 'CONFIDENCE') result.confidence = parseInt(value);
-            else if (key === 'REASON') result.reason = value;
+            const [key, val] = part.split(':').map(s => s.trim());
+            if (key === 'SIGNAL') ai.signal = val;
+            else if (key === 'ENTRY') ai.entry = parseFloat(val);
+            else if (key === 'SL') ai.sl = parseFloat(val);
+            else if (key === 'TP') ai.tp = parseFloat(val);
+            else if (key === 'CONFIDENCE') ai.confidence = parseInt(val);
+            else if (key === 'REASON') ai.reason = val;
         });
         
-        return result;
+        return ai;
     }
     
-    function renderAIResult(result) {
-        const container = document.getElementById('aiResultContainer');
-        const signalClass = result.signal.toLowerCase();
+    function renderAI(ai) {
+        const result = document.getElementById('aiResult');
+        const cls = ai.signal === 'BUY' ? 'buy' : ai.signal === 'SELL' ? 'sell' : '';
+        const icon = ai.signal === 'BUY' ? '📈' : ai.signal === 'SELL' ? '📉' : '⏸️';
         
-        container.innerHTML = `
+        result.innerHTML = `
             <div class="ai-result">
-                <div class="ai-signal ${signalClass}">
-                    ${result.signal === 'BUY' ? '📈' : result.signal === 'SELL' ? '📉' : '⏸️'} 
-                    ${result.signal}
+                <div class="ai-signal-big ${cls}">
+                    ${icon} ${ai.signal}
                 </div>
                 
-                <div class="ai-details">
-                    <div class="ai-detail-item">
-                        <div class="ai-detail-label">Entry Price</div>
-                        <div class="ai-detail-value" style="color: var(--accent-blue);">
-                            ${result.entry.toFixed(2)}
-                        </div>
+                <div class="ai-prices">
+                    <div class="ai-price">
+                        <div class="ai-price-label">Entry</div>
+                        <div class="ai-price-value" style="color: var(--accent-cyan);">${ai.entry.toFixed(2)}</div>
                     </div>
-                    <div class="ai-detail-item">
-                        <div class="ai-detail-label">Stop Loss</div>
-                        <div class="ai-detail-value" style="color: var(--accent-red);">
-                            ${result.sl.toFixed(2)}
-                        </div>
+                    <div class="ai-price">
+                        <div class="ai-price-label">Stop Loss</div>
+                        <div class="ai-price-value" style="color: var(--accent-red);">${ai.sl.toFixed(2)}</div>
                     </div>
-                    <div class="ai-detail-item">
-                        <div class="ai-detail-label">Take Profit</div>
-                        <div class="ai-detail-value" style="color: var(--accent-green);">
-                            ${result.tp.toFixed(2)}
-                        </div>
+                    <div class="ai-price">
+                        <div class="ai-price-label">Take Profit</div>
+                        <div class="ai-price-value" style="color: var(--accent-green);">${ai.tp.toFixed(2)}</div>
                     </div>
-                    <div class="ai-detail-item">
-                        <div class="ai-detail-label">Confidence</div>
-                        <div class="ai-detail-value" style="color: var(--accent-yellow);">
-                            ${result.confidence}%
-                        </div>
+                    <div class="ai-price">
+                        <div class="ai-price-label">Confidence</div>
+                        <div class="ai-price-value" style="color: var(--accent-gold);">${ai.confidence}%</div>
                     </div>
                 </div>
                 
                 <div class="ai-reason">
-                    <strong>Lý do:</strong> ${result.reason}
+                    <strong>💡 Lý do:</strong><br>${ai.reason}
                 </div>
             </div>
         `;
     }
     
-    // Toast Notifications
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
+    // Toast
+    function toast(msg, type = 'info') {
+        const div = document.createElement('div');
+        div.className = `toast toast-${type}`;
+        div.textContent = msg;
+        document.body.appendChild(div);
         
-        document.body.appendChild(toast);
-        
-        setTimeout(() => toast.classList.add('show'), 100);
-        
+        setTimeout(() => div.classList.add('show'), 100);
         setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
+            div.classList.remove('show');
+            setTimeout(() => div.remove(), 300);
         }, 3000);
     }
     
-    // Settings Modal
-    document.getElementById('settingsBtn').addEventListener('click', () => {
-        document.getElementById('settingsModal').classList.add('active');
-        
-        // Load current settings
-        document.getElementById('apiKeyInput').value = config.apiKey;
+    // Settings
+    document.getElementById('settingsBtn').onclick = () => {
+        document.getElementById('settingsModal').classList.add('show');
+        document.getElementById('apiKey').value = config.apiKey;
         document.getElementById('symbolInput').value = config.symbol;
         document.getElementById('timeframeInput').value = config.timeframe;
-        document.getElementById('strategyInput').value = config.strategy;
-    });
+    };
     
-    document.getElementById('closeModal').addEventListener('click', () => {
-        document.getElementById('settingsModal').classList.remove('active');
-    });
+    document.getElementById('closeModal').onclick = () => {
+        document.getElementById('settingsModal').classList.remove('show');
+    };
     
-    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-        config.apiKey = document.getElementById('apiKeyInput').value;
-        config.symbol = document.getElementById('symbolInput').value;
+    document.getElementById('saveBtn').onclick = () => {
+        config.apiKey = document.getElementById('apiKey').value;
+        config.symbol = document.getElementById('symbolInput').value.toUpperCase();
         config.timeframe = document.getElementById('timeframeInput').value;
-        config.strategy = document.getElementById('strategyInput').value;
         
-        // Save to localStorage
-        localStorage.setItem('groqApiKey', config.apiKey);
+        localStorage.setItem('apiKey', config.apiKey);
         localStorage.setItem('symbol', config.symbol);
         localStorage.setItem('timeframe', config.timeframe);
-        localStorage.setItem('strategy', config.strategy);
         
-        // Update display
-        document.getElementById('symbolName').textContent = config.symbol.split(':')[1];
-        const tfDisplay = {
-            '1': 'M1', '5': 'M5', '15': 'M15', '30': 'M30',
-            '60': 'H1', '240': 'H4', 'D': 'D1'
+        document.getElementById('symbol').textContent = config.symbol;
+        const tfText = {
+            '15': 'M15', '30': 'M30', '60': 'H1', '240': 'H4', 'D': 'D1'
         };
-        document.getElementById('timeframeBadge').textContent = tfDisplay[config.timeframe];
+        document.getElementById('timeframe').textContent = tfText[config.timeframe];
         
-        // Reload chart
         initChart();
         
-        document.getElementById('settingsModal').classList.remove('active');
-        showToast('Đã lưu cài đặt!', 'success');
-    });
+        document.getElementById('settingsModal').classList.remove('show');
+        toast('✅ Đã lưu cài đặt!', 'success');
+    };
     
-    // Event Listeners
-    document.getElementById('analyzeBtn').addEventListener('click', performAIAnalysis);
+    // Events
+    document.getElementById('analyzeBtn').onclick = analyzeAI;
     
-    // Initialize
+    // Init
     initChart();
     analyzeMTF().then(renderMTF);
     
-    // Update balance display (simulated)
+    // Balance animation
     setInterval(() => {
-        const balance = 973.47 + (Math.random() - 0.5) * 10;
-        document.getElementById('balanceDisplay').textContent = 
-            '$' + balance.toFixed(2);
-    }, 5000);
+        const bal = 973.47 + (Math.random() - 0.5) * 5;
+        document.getElementById('balance').textContent = '$' + bal.toFixed(2);
+    }, 3000);
 </script>
 ```
 
 </body>
-</html
+</html>

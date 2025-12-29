@@ -7,9 +7,6 @@
     <title>AI Trading Terminal - Multi-Timeframe Analysis</title>
 
 ```
-<!-- TradingView Widget -->
-<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
     
@@ -43,7 +40,6 @@
         overflow-x: hidden;
     }
     
-    /* Animated gradient background */
     body::before {
         content: '';
         position: fixed;
@@ -69,7 +65,6 @@
         padding: 20px;
     }
     
-    /* Header */
     .header {
         display: flex;
         justify-content: space-between;
@@ -118,7 +113,6 @@
     .stat-value.positive { color: var(--accent-green); }
     .stat-value.negative { color: var(--accent-red); }
     
-    /* Main Layout */
     .main-layout {
         display: grid;
         grid-template-columns: 1fr 380px;
@@ -126,7 +120,6 @@
         height: calc(100vh - 180px);
     }
     
-    /* Chart Container */
     .chart-section {
         background: var(--bg-secondary);
         border-radius: 16px;
@@ -176,13 +169,15 @@
         flex: 1;
         border-radius: 12px;
         overflow: hidden;
+        background: var(--bg-tertiary);
     }
     
-    /* Control Panel */
     .control-panel {
         display: flex;
         flex-direction: column;
         gap: 15px;
+        overflow-y: auto;
+        max-height: calc(100vh - 180px);
     }
     
     .panel-card {
@@ -203,7 +198,6 @@
         letter-spacing: 1px;
     }
     
-    /* AI Analysis Box */
     .ai-analysis {
         min-height: 200px;
         max-height: 300px;
@@ -253,6 +247,7 @@
     
     .signal-type.buy { color: var(--accent-green); }
     .signal-type.sell { color: var(--accent-red); }
+    .signal-type.neutral { color: var(--accent-yellow); }
     
     .confidence {
         font-size: 14px;
@@ -289,42 +284,6 @@
         border-top: 1px solid var(--border-color);
     }
     
-    /* MTF Analysis */
-    .mtf-grid {
-        display: grid;
-        gap: 10px;
-    }
-    
-    .mtf-item {
-        padding: 12px;
-        background: var(--bg-tertiary);
-        border-radius: 8px;
-        border-left: 3px solid var(--border-color);
-    }
-    
-    .mtf-item.bullish { border-left-color: var(--accent-green); }
-    .mtf-item.bearish { border-left-color: var(--accent-red); }
-    
-    .mtf-timeframe {
-        font-size: 11px;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    .mtf-indicators {
-        display: flex;
-        gap: 15px;
-        margin-top: 8px;
-        font-size: 11px;
-    }
-    
-    .mtf-signal {
-        font-weight: 700;
-        margin-top: 8px;
-    }
-    
-    /* Settings */
     .settings-grid {
         display: grid;
         gap: 15px;
@@ -359,7 +318,6 @@
         box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
     }
     
-    /* Buttons */
     .btn-group {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -405,7 +363,30 @@
         cursor: not-allowed;
     }
     
-    /* Scrollbar */
+    .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+    }
+    
+    .error-message {
+        padding: 15px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid var(--accent-red);
+        border-radius: 8px;
+        color: var(--accent-red);
+        font-size: 12px;
+        margin-top: 10px;
+    }
+    
+    .success-message {
+        padding: 15px;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid var(--accent-green);
+        border-radius: 8px;
+        color: var(--accent-green);
+        font-size: 12px;
+        margin-top: 10px;
+    }
+    
     ::-webkit-scrollbar {
         width: 8px;
     }
@@ -424,7 +405,6 @@
         background: var(--accent-cyan);
     }
     
-    /* Responsive */
     @media (max-width: 1400px) {
         .main-layout {
             grid-template-columns: 1fr;
@@ -434,6 +414,10 @@
         .chart-section {
             height: 600px;
         }
+        
+        .control-panel {
+            max-height: none;
+        }
     }
 </style>
 ```
@@ -441,7 +425,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <div class="logo">⚡ AI TRADING TERMINAL</div>
             <div class="account-info">
@@ -461,47 +444,32 @@
         </div>
 
 ```
-    <!-- Main Layout -->
     <div class="main-layout">
-        <!-- Chart Section -->
         <div class="chart-section">
             <div class="chart-header">
                 <div class="symbol-selector">
-                    <button class="symbol-btn active" onclick="changeSymbol('XAUUSD')">GOLD</button>
-                    <button class="symbol-btn" onclick="changeSymbol('BTCUSD')">BTC</button>
-                    <button class="symbol-btn" onclick="changeSymbol('EURUSD')">EUR/USD</button>
-                    <button class="symbol-btn" onclick="changeSymbol('USDJPY')">USD/JPY</button>
+                    <button class="symbol-btn active" onclick="changeSymbol('XAUUSD', this)">GOLD</button>
+                    <button class="symbol-btn" onclick="changeSymbol('BTCUSD', this)">BTC</button>
+                    <button class="symbol-btn" onclick="changeSymbol('EURUSD', this)">EUR/USD</button>
+                    <button class="symbol-btn" onclick="changeSymbol('USDJPY', this)">USD/JPY</button>
                 </div>
             </div>
             <div id="tradingview_chart"></div>
         </div>
         
-        <!-- Control Panel -->
         <div class="control-panel">
-            <!-- AI Analysis -->
             <div class="panel-card ai-analysis">
                 <div class="panel-title">🤖 AI Analysis</div>
                 <div id="analysisContent">
                     <div class="analysis-loading">
                         <div class="spinner"></div>
                         <div style="color: var(--text-secondary); font-size: 13px;">
-                            Waiting for analysis...
+                            Click "Analyze Now" to start
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- MTF Analysis -->
-            <div class="panel-card" style="max-height: 250px; overflow-y: auto;">
-                <div class="panel-title">📊 Multi-Timeframe</div>
-                <div class="mtf-grid" id="mtfContent">
-                    <div style="color: var(--text-secondary); font-size: 12px; text-align: center; padding: 20px;">
-                        Enable MTF analysis in settings
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Trading Controls -->
             <div class="panel-card">
                 <div class="panel-title">⚡ Trading</div>
                 <div class="btn-group">
@@ -520,27 +488,24 @@
                 </div>
             </div>
             
-            <!-- Settings -->
-            <div class="panel-card" style="max-height: 300px; overflow-y: auto;">
+            <div class="panel-card">
                 <div class="panel-title">⚙️ Settings</div>
                 <div class="settings-grid">
                     <div class="setting-item">
                         <label class="setting-label">Groq API Key</label>
-                        <input type="password" class="setting-input" id="apiKey" placeholder="Enter your Groq API key">
+                        <input type="password" class="setting-input" id="apiKey" placeholder="gsk_...">
                     </div>
                     <div class="setting-item">
                         <label class="setting-label">Risk % per Trade</label>
                         <input type="number" class="setting-input" id="riskPercent" value="1" min="0.1" max="10" step="0.1">
                     </div>
                     <div class="setting-item">
-                        <label class="setting-label">Analysis Interval (minutes)</label>
-                        <input type="number" class="setting-input" id="analysisInterval" value="30" min="1" max="1440">
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">Enable MTF Analysis</label>
-                        <select class="setting-input" id="enableMTF">
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
+                        <label class="setting-label">Strategy</label>
+                        <select class="setting-input" id="strategy">
+                            <option value="AI_HYBRID">AI Hybrid (Khuyến nghị)</option>
+                            <option value="ICT">ICT</option>
+                            <option value="SMC">Smart Money Concepts</option>
+                            <option value="PRICE_ACTION">Price Action</option>
                         </select>
                     </div>
                 </div>
@@ -549,40 +514,58 @@
     </div>
 </div>
 
+<!-- TradingView Widget Script -->
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
 <script>
-    // Global state
-    let currentSymbol = 'OANDA:XAUUSD';
+    let currentSymbol = 'XAUUSD';
     let tvWidget = null;
     let lastSignal = null;
-    let analysisTimer = null;
     
-    // Initialize TradingView Widget
+    // Initialize TradingView
     function initTradingView() {
-        tvWidget = new TradingView.widget({
-            "width": "100%",
-            "height": "100%",
-            "symbol": currentSymbol,
-            "interval": "15",
-            "timezone": "Asia/Ho_Chi_Minh",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#131829",
-            "enable_publishing": false,
-            "hide_side_toolbar": false,
-            "allow_symbol_change": true,
-            "studies": [
-                "RSI@tv-basicstudies",
-                "MACD@tv-basicstudies"
-            ],
-            "container_id": "tradingview_chart",
-            "backgroundColor": "#1a1f3a",
-            "gridColor": "#2d3748"
-        });
+        if (typeof TradingView !== 'undefined') {
+            try {
+                tvWidget = new TradingView.widget({
+                    "autosize": true,
+                    "symbol": "OANDA:XAUUSD",
+                    "interval": "15",
+                    "timezone": "Asia/Ho_Chi_Minh",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "en",
+                    "toolbar_bg": "#131829",
+                    "enable_publishing": false,
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "studies": [
+                        "RSI@tv-basicstudies",
+                        "MASimple@tv-basicstudies"
+                    ],
+                    "container_id": "tradingview_chart",
+                    "backgroundColor": "#1a1f3a",
+                    "gridColor": "#2d3748"
+                });
+                console.log('✅ TradingView initialized');
+            } catch (error) {
+                console.error('TradingView error:', error);
+                document.getElementById('tradingview_chart').innerHTML = 
+                    '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);">TradingView chart loading...</div>';
+            }
+        } else {
+            console.log('⏳ Waiting for TradingView...');
+            setTimeout(initTradingView, 1000);
+        }
     }
     
-    // Change symbol
-    function changeSymbol(symbol) {
+    function changeSymbol(symbol, btn) {
+        currentSymbol = symbol;
+        
+        document.querySelectorAll('.symbol-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+        btn.classList.add('active');
+        
         const symbolMap = {
             'XAUUSD': 'OANDA:XAUUSD',
             'BTCUSD': 'BITSTAMP:BTCUSD',
@@ -590,42 +573,37 @@
             'USDJPY': 'FX:USDJPY'
         };
         
-        currentSymbol = symbolMap[symbol];
-        
-        // Update active button
-        document.querySelectorAll('.symbol-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
-        
-        // Reload chart
-        if (tvWidget) {
-            tvWidget.setSymbol(currentSymbol, '15', () => {
-                console.log('Symbol changed to:', currentSymbol);
-            });
+        if (tvWidget && tvWidget.setSymbol) {
+            tvWidget.setSymbol(symbolMap[symbol], '15');
         }
     }
     
-    // Analyze market with AI
     async function analyzeMarket() {
         const apiKey = document.getElementById('apiKey').value;
+        
         if (!apiKey) {
-            alert('Please enter your Groq API key in settings');
+            showMessage('analysisContent', 'error', '❌ Vui lòng nhập Groq API Key trong Settings');
             return;
         }
         
-        // Show loading
+        if (!apiKey.startsWith('gsk_')) {
+            showMessage('analysisContent', 'error', '❌ API Key không hợp lệ (phải bắt đầu bằng gsk_)');
+            return;
+        }
+        
         document.getElementById('analysisContent').innerHTML = `
             <div class="analysis-loading">
                 <div class="spinner"></div>
                 <div style="color: var(--text-secondary); font-size: 13px;">
-                    Analyzing market with AI...
+                    Đang phân tích với AI...
                 </div>
             </div>
         `;
         
         try {
-            // Call Groq API
+            const strategy = document.getElementById('strategy').value;
+            const prompt = buildPrompt(strategy);
+            
             const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -637,11 +615,11 @@
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are a professional forex trading analyst.'
+                            content: 'You are a professional forex trading analyst specializing in ICT, SMC, and price action.'
                         },
                         {
                             role: 'user',
-                            content: buildAnalysisPrompt()
+                            content: prompt
                         }
                     ],
                     temperature: 0.7,
@@ -649,59 +627,61 @@
                 })
             });
             
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API Error ${response.status}: ${errorText}`);
+            }
+            
             const data = await response.json();
             
             if (data.choices && data.choices[0]) {
                 const aiResponse = data.choices[0].message.content;
+                console.log('AI Response:', aiResponse);
                 parseAndDisplaySignal(aiResponse);
             } else {
-                throw new Error('Invalid API response');
+                throw new Error('Invalid API response format');
             }
             
         } catch (error) {
             console.error('Analysis error:', error);
-            document.getElementById('analysisContent').innerHTML = `
-                <div style="color: var(--accent-red); text-align: center; padding: 20px;">
-                    ❌ Analysis failed: ${error.message}
-                </div>
-            `;
+            showMessage('analysisContent', 'error', `❌ ${error.message}`);
         }
     }
     
-    // Build analysis prompt
-    function buildAnalysisPrompt() {
-        const symbol = currentSymbol.split(':')[1] || 'XAUUSD';
+    function buildPrompt(strategy) {
+        const strategyText = {
+            'ICT': 'ICT (Inner Circle Trader): order blocks, fair value gaps, market structure shifts',
+            'SMC': 'Smart Money Concepts: liquidity grabs, stop hunts, change of character',
+            'PRICE_ACTION': 'Price Action: candlestick patterns, support/resistance',
+            'AI_HYBRID': 'Kết hợp ICT, SMC và Price Action'
+        };
         
-        let prompt = `Phân tích thị trường ${symbol} và đưa ra quyết định giao dịch cụ thể. `;
-        prompt += `Sử dụng kết hợp ICT, SMC và price action để phân tích toàn diện. `;
-        prompt += `Tìm confluence của các tín hiệu để xác định entry, SL và TP tốt nhất. `;
-        
-        // Add MTF if enabled
-        const enableMTF = document.getElementById('enableMTF').value === 'true';
-        if (enableMTF) {
-            prompt += `\n\nQUAN TRỌNG - Phân tích đa khung thời gian:\n`;
-            prompt += `Xem xét M15, H1, và H4 để xác nhận xu hướng.\n`;
-            prompt += `Chỉ vào lệnh khi cả 3 khung đồng thuận!\n\n`;
-        }
-        
-        prompt += `Hãy phân tích và trả lời CHÍNH XÁC theo format sau:\n`;
-        prompt += `SIGNAL: BUY hoặc SELL hoặc NEUTRAL|\n`;
-        prompt += `ENTRY: [giá vào lệnh cụ thể]|\n`;
-        prompt += `SL: [giá stop loss cụ thể]|\n`;
-        prompt += `TP: [giá take profit cụ thể]|\n`;
-        prompt += `CONFIDENCE: [0-100]%|\n`;
-        prompt += `REASON: [lý do ngắn gọn]`;
-        
-        return prompt;
-    }
-    
-    // Parse and display AI signal
+        return `Phân tích thị trường ${currentSymbol} sử dụng ${strategyText[strategy]}.
+```
+
+Hãy đưa ra quyết định giao dịch theo format SAU ĐÂY (KHÔNG THÊM GÌ KHÁC):
+
+SIGNAL: BUY hoặc SELL hoặc NEUTRAL|ENTRY: [giá cụ thể]|SL: [giá cụ thể]|TP: [giá cụ thể]|CONFIDENCE: [0-100]%|REASON: [lý do ngắn gọn]
+
+Ví dụ:
+SIGNAL: SELL|ENTRY: 2650.5|SL: 2665.0|TP: 2620.0|CONFIDENCE: 80%|REASON: Strong bearish order block, break of structure
+
+Bây giờ phân tích ${currentSymbol}:`;
+}
+
+```
     function parseAndDisplaySignal(aiResponse) {
         try {
-            // Parse response
-            const parts = aiResponse.split('|');
+            console.log('Parsing:', aiResponse);
+            
+            const parts = aiResponse.split('|').map(p => p.trim());
+            
+            if (parts.length < 6) {
+                throw new Error('Invalid response format');
+            }
+            
             const signal = {
-                type: parts[0].split(':')[1].trim(),
+                type: parts[0].split(':')[1].trim().toUpperCase(),
                 entry: parts[1].split(':')[1].trim(),
                 sl: parts[2].split(':')[1].trim(),
                 tp: parts[3].split(':')[1].trim(),
@@ -711,13 +691,14 @@
             
             lastSignal = signal;
             
-            // Display signal
             const signalClass = signal.type.toLowerCase();
+            const rr = calculateRR(signal);
+            
             document.getElementById('analysisContent').innerHTML = `
                 <div class="signal-card">
                     <div class="signal-header">
                         <div class="signal-type ${signalClass}">${signal.type}</div>
-                        <div class="confidence">${signal.confidence}</div>
+                        <div class="confidence">⭐ ${signal.confidence}</div>
                     </div>
                     <div class="signal-details">
                         <div class="detail-item">
@@ -734,89 +715,97 @@
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Risk/Reward</div>
-                            <div class="detail-value">${calculateRR(signal)}</div>
+                            <div class="detail-value">${rr}</div>
                         </div>
                     </div>
                     <div class="signal-reason">
-                        ${signal.reason}
+                        💡 ${signal.reason}
                     </div>
                 </div>
             `;
             
         } catch (error) {
             console.error('Parse error:', error);
-            document.getElementById('analysisContent').innerHTML = `
-                <div style="color: var(--accent-red); padding: 20px;">
-                    Failed to parse AI response
-                </div>
-            `;
+            showMessage('analysisContent', 'error', `❌ Không thể phân tích phản hồi: ${error.message}`);
         }
     }
     
-    // Calculate Risk/Reward ratio
     function calculateRR(signal) {
-        const entry = parseFloat(signal.entry);
-        const sl = parseFloat(signal.sl);
-        const tp = parseFloat(signal.tp);
-        
-        const risk = Math.abs(entry - sl);
-        const reward = Math.abs(tp - entry);
-        
-        if (risk > 0) {
-            const rr = reward / risk;
-            return `1:${rr.toFixed(2)}`;
+        try {
+            const entry = parseFloat(signal.entry.replace(/[^0-9.]/g, ''));
+            const sl = parseFloat(signal.sl.replace(/[^0-9.]/g, ''));
+            const tp = parseFloat(signal.tp.replace(/[^0-9.]/g, ''));
+            
+            const risk = Math.abs(entry - sl);
+            const reward = Math.abs(tp - entry);
+            
+            if (risk > 0) {
+                const rr = reward / risk;
+                return `1:${rr.toFixed(2)}`;
+            }
+        } catch (e) {
+            console.error('R:R calculation error:', e);
         }
         return 'N/A';
     }
     
-    // Execute trade
     function executeTrade(direction) {
         if (!lastSignal) {
-            alert('Please analyze market first');
+            alert('⚠️ Vui lòng phân tích thị trường trước');
             return;
         }
         
-        if (lastSignal.type !== direction) {
-            const confirm = window.confirm(`AI suggests ${lastSignal.type}, but you want to ${direction}. Continue?`);
-            if (!confirm) return;
+        const message = `
+```
+
+📊 ${direction} ORDER
+
+Entry: ${lastSignal.entry}
+Stop Loss: ${lastSignal.sl}
+Take Profit: ${lastSignal.tp}
+Risk/Reward: ${calculateRR(lastSignal)}
+
+⚠️ Đây là demo. Trong production, lệnh sẽ được gửi đến broker API.
+
+Bạn có muốn tiếp tục?
+`;
+
+```
+        if (confirm(message)) {
+            alert('✅ Lệnh đã được "gửi" (demo mode)');
         }
-        
-        alert(`${direction} order would be placed here.\n\nIn production, this would connect to your broker's API.`);
     }
     
-    // Close all positions
     function closeAll() {
-        alert('All positions would be closed here.\n\nIn production, this would connect to your broker's API.');
+        if (confirm('⚠️ Đóng tất cả positions?\n\n(Demo mode - không có lệnh thực)')) {
+            alert('✅ Tất cả positions đã được đóng (demo)');
+        }
     }
     
-    // Auto analysis
-    function startAutoAnalysis() {
-        const interval = parseInt(document.getElementById('analysisInterval').value) * 60 * 1000;
-        
-        if (analysisTimer) {
-            clearInterval(analysisTimer);
-        }
-        
-        analysisTimer = setInterval(() => {
-            analyzeMarket();
-        }, interval);
+    function showMessage(elementId, type, message) {
+        const className = type === 'error' ? 'error-message' : 'success-message';
+        document.getElementById(elementId).innerHTML = `
+            <div class="${className}">${message}</div>
+        `;
     }
     
-    // Initialize on load
-    window.onload = function() {
-        initTradingView();
-        
-        // Load saved settings
-        const savedApiKey = localStorage.getItem('groqApiKey');
-        if (savedApiKey) {
-            document.getElementById('apiKey').value = savedApiKey;
+    // Save API key
+    document.getElementById('apiKey').addEventListener('change', (e) => {
+        localStorage.setItem('groqApiKey', e.target.value);
+    });
+    
+    // Load saved settings
+    window.addEventListener('load', () => {
+        const savedKey = localStorage.getItem('groqApiKey');
+        if (savedKey) {
+            document.getElementById('apiKey').value = savedKey;
         }
         
-        // Save API key on change
-        document.getElementById('apiKey').addEventListener('change', (e) => {
-            localStorage.setItem('groqApiKey', e.target.value);
-        });
-    };
+        // Initialize TradingView after page load
+        setTimeout(() => {
+            initTradingView();
+        }, 500);
+    });
 </script>
 ```
 
